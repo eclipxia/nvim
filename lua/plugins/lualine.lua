@@ -10,6 +10,9 @@ return {
         return ""
       end
 
+
+
+
       require("lualine").setup({
         options = {
           -- theme = "dracula",
@@ -26,7 +29,13 @@ return {
           lualine_a = { "mode" },
           lualine_b = { "branch", "diff", "diagnostics" },
           lualine_c = { {"filename", path = 3}, terminal_status },
-          lualine_x = { "encoding", "fileformat", "filetype", "lsp_status" },
+					lualine_x = {
+						{ 'datetime', style = '%H:%M' },
+						'encoding',
+						'fileformat',
+						'filetype',
+						'lsp_status',
+					},
           lualine_y = { "progress" },
 					lualine_z = { "location" },
         },

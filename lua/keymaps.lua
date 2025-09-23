@@ -4,6 +4,10 @@ vim.g.maplocalleader = " "
 
 local opts = { noremap = true, silent = true }
 
+vim.keymap.set("n", "<C-d>", "<C-d>zz")
+vim.keymap.set("n", "<C-u>", "<C-u>zz")
+vim.keymap.set("n", "n", "nzzzv")
+vim.keymap.set("n", "N", "Nzzzv")
 -- Toggle nvim-tree with <leader>e
 vim.keymap.set("n", "<leader>e", "<cmd>NvimTreeToggle<CR>", opts)
 vim.keymap.set("n", "<leader>bd", ":bd!<CR>", { desc = "Force close buffer" })
@@ -13,8 +17,6 @@ vim.keymap.set("n", "<leader>q", "<cmd>q<CR>", opts)
 vim.keymap.set("v", "J", ":m '>+1<CR>gv=gv")
 --move highlighted stuffs
 vim.keymap.set("v", "K", ":m '<-2<CR>gv=gv")
--- Optional: delete to blackhole to avoid overwriting clipboard
-vim.keymap.set({ "n", "v" }, "<leader>d", '"_d', opts)  -- Delete without affecting registers
 
 -- Add more keymaps below as needed
 -- Save current file with <leader>w
@@ -23,17 +25,6 @@ vim.keymap.set("n", "<leader>w", "<cmd>write<CR>", { noremap = true, silent = tr
 -- Quit current window with <leader>q
 vim.keymap.set("n", "<leader>q", "<cmd>quit<CR>", { noremap = true, silent = true })
 
--- -- Yank to system clipboard
--- vim.keymap.set({ "n", "v" }, "y", '"+y', { noremap = true, desc = "Yank to clipboard" })
--- vim.keymap.set("n", "yy", '"+yy', { noremap = true, desc = "Yank line to clipboard" })
---
--- -- Paste from system clipboard
--- vim.keymap.set({ "n", "v" }, "p", '"+p', { noremap = true, desc = "Paste from clipboard" })
--- vim.keymap.set({ "n", "v" }, "P", '"+P', { noremap = true, desc = "Paste before from clipboard" })
-
--- Command line enhancements
--- vim.keymap.set("n", ":", "q:$a", { desc = "Command line with cursor at end" })
--- vim.keymap.set("v", ":", "q:$a", { desc = "Command line with cursor at end (visual)" })
 vim.keymap.set("t", "<C-:>", "<C-\\><C-n>q:$a", { desc = "Exit terminal and enter command mode with cursor at end" })
 
 vim.keymap.set("n", "<C-;>", ":", { desc = "Enter command mode" })

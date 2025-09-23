@@ -1,6 +1,7 @@
 vim.opt.showmode = false
 vim.o.guifont = "JetBrainsMono Nerd Font:h14"
 vim.g.neovide_hide_titlebar = true 
+vim.g.neovide_macos__fullscreen = true
 vim.g.neovide_position_animation_length = 0
 vim.g.neovide_cursor_animation_length = 0.00
 vim.g.neovide_cursor_trail_size = 0

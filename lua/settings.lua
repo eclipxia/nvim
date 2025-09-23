@@ -2,3 +2,4 @@ vim.opt.number = true            -- show absolute line number on the current lin
 vim.opt.relativenumber = true    -- show relative line numbers on other lines
 vim.opt.virtualedit = always
 vim.opt.swapfile = false
+vim.diagnostic.config({ virtual_text = true })
