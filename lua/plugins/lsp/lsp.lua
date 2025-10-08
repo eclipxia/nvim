@@ -82,15 +82,19 @@ return {
     require("fidget").setup({})
 
     -- Diagnostics style
-    vim.diagnostic.config({
-      float = {
-        focusable = false,
-        style = "minimal",
-        border = "rounded",
-        source = "always",
-        header = "",
-        prefix = "",
-      },
-    })
+	vim.diagnostic.config({
+		virtual_text = {
+			severity = { min = vim.diagnostic.severity.WARN }, -- only WARN, ERROR
+		},
+		signs = {
+			severity = { min = vim.diagnostic.severity.WARN },
+		},
+		underline = {
+			severity = { min = vim.diagnostic.severity.WARN },
+		},
+		float = {
+			severity = { min = vim.diagnostic.severity.WARN },
+		},
+	})
   end,
 }
