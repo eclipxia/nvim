@@ -81,6 +81,15 @@ return {
 
     require("fidget").setup({})
 
+	local lspconfig = require('lspconfig')
+
+	lspconfig.pyright.setup {
+		settings = {
+			python = {
+				pythonPath = "/home/eclipxia/Documents/school/password-manager/main/venv/bin/python"
+			}
+		}
+	}
     -- Diagnostics style
 	vim.diagnostic.config({
 		virtual_text = {

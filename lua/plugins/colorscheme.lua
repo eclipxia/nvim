@@ -24,5 +24,12 @@ return {
 			-- Enable theme
 			require('onedark').load()
 		end
-	}
+	},
+	{
+    "kartikp10/noctis.nvim",
+    dependencies = { "rktjmp/lush.nvim" },
+    config = function()
+      vim.cmd("colorscheme noctis")
+    end,
+  },
 }
