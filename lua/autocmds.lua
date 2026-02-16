@@ -35,6 +35,7 @@ local autocommands = {
 			pattern = { "*.md", "*.txt", "*.tex" },
 			callback = function()
 				vim.opt.textwidth = 80
+				vim.opt_local.wrap = false
 			end,
 		},
 	},
