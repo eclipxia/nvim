@@ -1,8 +1,7 @@
 return {
     'SCJangra/table-nvim',
     -- Keep lazy loading with 'ft' to only load the plugin for markdown
-    ft = 'markdown', 
-    
+    ft = 'markdown',
     config = function()
         -- 1. Setup the plugin
         require('table-nvim').setup({})

@@ -3,14 +3,17 @@ return {
   branch = "master",
   dependencies = {
     'nvim-lua/plenary.nvim', -- Required for Telescope
-    {
-      'nvim-telescope/telescope-fzf-native.nvim',
-      build = 'make', -- For Linux/macOS
-      config = function()
-        require('telescope').load_extension('fzf')
-      end,
-    },
-  },
+		{
+			'nvim-telescope/telescope-fzf-native.nvim',
+			-- Check if we are on Windows and use Zig
+			build = vim.fn.has("win32") == 1
+				and "zig cc -O3 -shared src/fzf.c -o build/libfzf.dll"
+				or "make",
+			config = function()
+				require('telescope').load_extension('fzf')
+			end,
+		},
+	},
   config = function()
     local telescope = require('telescope')
     local actions = require('telescope.actions')
