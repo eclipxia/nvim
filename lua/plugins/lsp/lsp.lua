@@ -2,6 +2,12 @@ return {
     -- 1. We now start with Mason as the primary plugin instead of lspconfig
     {
         "williamboman/mason.nvim",
+				opts = {
+					registries = {
+						'github:mason-org/mason-registry',
+						'github:nvim-java/mason-registry',
+					},
+				},
         build = ":MasonUpdate",
         cmd = { "Mason", "MasonInstall", "MasonUpdate", "MasonLog" },
         event = { "BufReadPre", "BufNewFile" },

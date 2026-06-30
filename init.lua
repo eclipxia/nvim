@@ -1,3 +1,4 @@
+
 vim.opt.showmode = false
 vim.o.guifont = "JetBrainsMono Nerd Font:h14"
 vim.g.neovide_hide_titlebar = true 
@@ -15,3 +16,4 @@ require("settings")
 require("config.lazy")        -- sets up lazy.nvim with only valid plugin specs
 require("keymaps")
 require("autocmds")
+vim.env.PATH = vim.env.PATH .. ":/opt/homebrew/bin"

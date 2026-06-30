@@ -1,40 +1,19 @@
 return {
-    "jeangiraldoo/codedocs.nvim",
-    dependencies = {
-        "nvim-treesitter/nvim-treesitter"
-    },
+    "kkoomen/vim-doge",
+    -- Doge needs to install its internal generators
+    build = ":call doge#install()",
     config = function()
-		require("codedocs").setup({
-			default_styles = {
-				python = "Google"
-			},
-			styles = { -- Modifications to styles are done in the `styles` key
-				python = { -- language name
-					Google = { -- name of the style to customize
-						func = { -- structure name
-							sections = {
-								parameters = {
-									insert_gap_between = {
-										enabled = true
-									},
-									items = {
-										insert_gap_between = {
-											enabled = true
-										},
-									},
-								},
-								returns = {
-									items = {
-										insert_gap_between = {
-											enabled = true
-										}
-									},
-								}
-							}
-						}
-					},
-				},
-			}
-		})
+        -- 1. Force the Google standard globally
+        vim.g.doge_doc_standard_python = 'google'
+        
+        -- 2. Enable "live" mode (lets you jump through placeholders)
+        vim.g.doge_enable_mappings = 1
+        
+        -- 3. Set your keymap
+        -- Using <Plug> is the traditional way Doge handles the generate call
+        vim.keymap.set("n", "<leader>k", "<Plug>(doge-generate)", { desc = "Doge Google Doc" })
+        
+        -- Optional: Keybinds to jump between the docstring fields
+        -- (Doge usually defaults to <Tab> and <S-Tab> automatically)
     end
 }

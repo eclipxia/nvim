@@ -64,5 +64,6 @@ return {
     vim.keymap.set('n', '<leader>fh', builtin.help_tags, { desc = 'Help Tags' })
 		vim.keymap.set("n", "<leader>re", "<cmd>Telescope registers<CR>", { desc = "Telescope Registers" })
     vim.keymap.set('n', '<leader>fc', builtin.git_commits, { desc = 'Find files' })
+    vim.keymap.set('n', '<leader>ws', builtin.lsp_workspace_symbols, { desc = 'Find files' })
   end,
 }
