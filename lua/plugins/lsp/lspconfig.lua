@@ -66,17 +66,6 @@ return {
                         vim.lsp.enable("lua_ls")
                     end,
 
-                    ["pyright"] = function()
-                        vim.lsp.config("pyright", {
-                            capabilities = capabilities,
-                            settings = {
-                                python = {
-                                    pythonPath = "/home/eclipxia/Documents/school/password-manager/main/venv/bin/python",
-                                },
-                            },
-                        })
-                        vim.lsp.enable("pyright")
-                    end,
 
                     ["svelte"] = function()
                         vim.lsp.config("svelte", {
