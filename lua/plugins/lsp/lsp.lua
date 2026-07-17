@@ -19,7 +19,7 @@ return {
 
             -- Setup Tool Installer (Linters/Formatters)
             require("mason-tool-installer").setup({
-                ensure_installed = { "flake8", "pylint", "stylua", "black" },
+                ensure_installed = { "flake8", "pylint", "stylua", "black", "java-debug-adapter", "java-test" },
             })
 
             require("fidget").setup({})
