@@ -60,15 +60,17 @@ return {
         },
         on_attach = function(client, bufnr)
           local jdtls = require('jdtls')
-          local opts = { buffer = bufnr }
-          vim.keymap.set('n', 'K', vim.lsp.buf.hover, opts)
-          vim.keymap.set('n', 'gd', vim.lsp.buf.definition, opts)
-          vim.keymap.set('n', '<leader>ca', vim.lsp.buf.code_action, opts)
-          vim.keymap.set('n', '<leader>rn', vim.lsp.buf.rename, opts)
-          vim.keymap.set('i', '<C-k>', vim.lsp.buf.signature_help, opts)
-          vim.keymap.set('n', '<leader>oi', jdtls.organize_imports, opts)
-          vim.keymap.set('n', '<leader>tc', jdtls.test_class, opts)
-          vim.keymap.set('n', '<leader>tm', jdtls.test_nearest_method, opts)
+          local set = function(mode, keys, cmd, desc)
+            vim.keymap.set(mode, keys, cmd, { buffer = bufnr, desc = desc })
+          end
+          set('n', 'K', vim.lsp.buf.hover, 'Show documentation')
+          set('n', 'gd', vim.lsp.buf.definition, 'Go to definition')
+          set('n', '<leader>ca', vim.lsp.buf.code_action, 'See available code actions')
+          set('n', '<leader>rn', vim.lsp.buf.rename, 'Smart rename')
+          set('i', '<C-k>', vim.lsp.buf.signature_help, 'Show signature help')
+          set('n', '<leader>oi', jdtls.organize_imports, 'Organize imports')
+          set('n', '<leader>tc', jdtls.test_class, 'Test class')
+          set('n', '<leader>tm', jdtls.test_nearest_method, 'Test nearest method')
 
           jdtls.setup_dap({ hotcodereplace = 'auto' })
           require('jdtls.dap').setup_dap_main_class_configs()

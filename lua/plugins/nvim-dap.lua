@@ -60,14 +60,16 @@ return {
       dap.listeners.before.event_exited["dapui_config"] = function() dapui.close() end
 
       -- Keymaps
-      local opts = { noremap = true, silent = true }
-      vim.keymap.set("n", "<leader>db", function() dap.toggle_breakpoint() end, opts)
-      vim.keymap.set("n", "<leader>dc", function() dap.continue() end, opts)
-      vim.keymap.set("n", "<leader>do", function() dap.step_over() end, opts)
-      vim.keymap.set("n", "<leader>di", function() dap.step_into() end, opts)
-      vim.keymap.set("n", "<leader>dO", function() dap.step_out() end, opts)
-      vim.keymap.set("n", "<leader>dq", function() dap.terminate() end, opts)
-      vim.keymap.set("n", "<leader>du", function() dapui.toggle() end, opts)
+      local set = function(keys, cmd, desc)
+        vim.keymap.set("n", keys, cmd, { noremap = true, silent = true, desc = desc })
+      end
+      set("<leader>db", function() dap.toggle_breakpoint() end, "Toggle breakpoint")
+      set("<leader>dc", function() dap.continue() end, "Continue")
+      set("<leader>do", function() dap.step_over() end, "Step over")
+      set("<leader>di", function() dap.step_into() end, "Step into")
+      set("<leader>dO", function() dap.step_out() end, "Step out")
+      set("<leader>dq", function() dap.terminate() end, "Terminate")
+      set("<leader>du", function() dapui.toggle() end, "Toggle DAP UI")
     end,
   },
 }
