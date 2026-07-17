@@ -12,8 +12,10 @@ return {
       local dapui = require("dapui")
       local dap_python = require("dap-python")
 
-      -- Use the venv that has debugpy
-      local py = vim.fn.expand("~/.venvs/debugpy313/bin/python")
+      -- Use the venv that has debugpy (Windows venvs put the interpreter under Scripts\, not bin/)
+      local py = vim.fn.has("win32") == 1
+        and vim.fn.expand("~/.venvs/debugpy313/Scripts/python.exe")
+        or vim.fn.expand("~/.venvs/debugpy313/bin/python")
 
       -- 1) Let dap-python set up default configs, pointing at your venv
       dap_python.setup(py)
