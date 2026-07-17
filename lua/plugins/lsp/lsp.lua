@@ -12,6 +12,7 @@ return {
         event = { "BufReadPre", "BufNewFile" },
         dependencies = {
             "j-hui/fidget.nvim",
+            "WhoIsSethDaniel/mason-tool-installer.nvim",
         },
         config = function()
             require("mason").setup()
