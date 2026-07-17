@@ -43,6 +43,7 @@ return {
 
             -- Configure Mason Handlers with Neovim 0.11+ syntax
             require("mason-lspconfig").setup({
+                ensure_installed = { "lua_ls", "rust_analyzer", "pyright", "clangd" },
                 handlers = {
                     -- Default handler
                     function(server_name)
@@ -63,6 +64,18 @@ return {
                             },
                         })
                         vim.lsp.enable("lua_ls")
+                    end,
+
+                    ["pyright"] = function()
+                        vim.lsp.config("pyright", {
+                            capabilities = capabilities,
+                            settings = {
+                                python = {
+                                    pythonPath = "/home/eclipxia/Documents/school/password-manager/main/venv/bin/python",
+                                },
+                            },
+                        })
+                        vim.lsp.enable("pyright")
                     end,
 
                     ["svelte"] = function()
@@ -96,6 +109,12 @@ return {
                         vim.lsp.enable("emmet_ls")
                     end,
                 },
+            })
+
+            -- Diagnostics
+            vim.diagnostic.config({
+                virtual_text = { severity = { min = vim.diagnostic.severity.WARN } },
+                signs = { severity = { min = vim.diagnostic.severity.WARN } },
             })
         end,
     },
