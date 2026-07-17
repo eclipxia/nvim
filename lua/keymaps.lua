@@ -32,13 +32,9 @@ vim.keymap.set("v", "<C-;>", ":", { desc = "Enter command mode (visual)" })
 vim.keymap.set("t", "<C-;>", "<C-\\><C-n>:", { desc = "Exit terminal and enter command mode" })
 
 -- Buffer navigation
-vim.keymap.set("n", "<C-M-h>", "<cmd>BufferLineCyclePrev<CR>", { desc = "Previous buffer" })
-vim.keymap.set("n", "<C-M-l>", "<cmd>BufferLineCycleNext<CR>", { desc = "Next buffer" })
 vim.keymap.set("n", "<C-M-k>", "<cmd>bp<CR>", { desc = "Buffer previous (alt)" })
 vim.keymap.set("n", "<C-M-j>", "<cmd>bn<CR>", { desc = "Buffer next (alt)" })
 
-vim.keymap.set("t", "<C-M-h>", "<cmd>BufferLineCyclePrev<CR>", { desc = "Previous buffer (terminal)" })
-vim.keymap.set("t", "<C-M-l>", "<cmd>BufferLineCycleNext<CR>", { desc = "Next buffer (terminal)" })
 vim.keymap.set("t", "<C-M-k>", "<cmd>bp<CR>", { desc = "Buffer previous (terminal)" })
 vim.keymap.set("t", "<C-M-j>", "<cmd>bn<CR>", { desc = "Buffer next (terminal)" })
 
