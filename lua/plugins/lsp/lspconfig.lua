@@ -25,18 +25,32 @@ return {
                         keymap.set(mode, keys, cmd, opts)
                     end
 
+                    -- jdtls (lua/plugins/java.lua) is itself an LSP client, so it
+                    -- triggers this autocmd too. It sets its own K/gd/<leader>ca/
+                    -- <leader>rn with jdtls-aware commands; skip those here so the
+                    -- two attach hooks don't clobber each other and which-key shows
+                    -- only the java-nvim binds on java buffers.
+                    local client = vim.lsp.get_client_by_id(ev.data.client_id)
+                    local is_jdtls = client and client.name == "jdtls"
+
                     set("n", "gR", "<cmd>Telescope lsp_references<CR>", "Show LSP references")
                     set("n", "gD", vim.lsp.buf.declaration, "Go to declaration")
-                    set("n", "gd", "<cmd>Telescope lsp_definitions<CR>", "Show LSP definitions")
+                    if not is_jdtls then
+                        set("n", "gd", "<cmd>Telescope lsp_definitions<CR>", "Show LSP definitions")
+                    end
                     set("n", "gi", "<cmd>Telescope lsp_implementations<CR>", "Show LSP implementations")
                     set("n", "gt", "<cmd>Telescope lsp_type_definitions<CR>", "Show LSP type definitions")
-                    set({ "n", "v" }, "<leader>ca", vim.lsp.buf.code_action, "See available code actions")
-                    set("n", "<leader>rn", vim.lsp.buf.rename, "Smart rename")
+                    if not is_jdtls then
+                        set({ "n", "v" }, "<leader>ca", vim.lsp.buf.code_action, "See available code actions")
+                        set("n", "<leader>rn", vim.lsp.buf.rename, "Smart rename")
+                    end
                     set("n", "<leader>D", "<cmd>Telescope diagnostics bufnr=0<CR>", "Show buffer diagnostics")
                     set("n", "<leader>d", vim.diagnostic.open_float, "Show line diagnostics")
 										set("n", "[d", function() vim.diagnostic.jump({ count = -1, float = true }) end, "Go to previous diagnostic")
 										set("n", "]d", function() vim.diagnostic.jump({ count = 1, float = true }) end, "Go to next diagnostic")
-                    set("n", "K", vim.lsp.buf.hover, "Show documentation")
+                    if not is_jdtls then
+                        set("n", "K", vim.lsp.buf.hover, "Show documentation")
+                    end
                     set("n", "<leader>rs", ":LspRestart<CR>", "Restart LSP")
                 end,
             })
