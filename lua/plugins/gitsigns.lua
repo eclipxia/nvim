@@ -28,6 +28,7 @@ return {
             map("n", "<leader>hr", gitsigns.reset_hunk, "Reset hunk")
             map("n", "<leader>hp", gitsigns.preview_hunk, "Preview hunk")
             map("n", "<leader>hb", function() gitsigns.blame_line({ full = true }) end, "Blame line")
+            map("n", "<leader>ht", gitsigns.toggle_signs, "Toggle git change signs")
         end,
     },
 }

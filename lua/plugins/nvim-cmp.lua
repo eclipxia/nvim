@@ -20,6 +20,7 @@ return {
     local types = require("cmp.types")
 
     require("luasnip.loaders.from_vscode").lazy_load()
+    require("luasnip.loaders.from_lua").load({ paths = "~/.config/nvim/luasnippets" })
 
     cmp.setup({
       completion = {
@@ -52,16 +53,10 @@ return {
 			sorting = {
 				priority_weight = 2,
 				comparators = {
-					-- put ONLY the "property" snippet first
+					-- put all luasnip (custom snippet) entries first
 					function(entry1, entry2)
-						local function is_property_snippet(entry)
-							return entry.source.name == "luasnip"
-								and entry.completion_item
-								and entry.completion_item.label == "property"
-						end
-
-						local e1 = is_property_snippet(entry1)
-						local e2 = is_property_snippet(entry2)
+						local e1 = entry1.source.name == "luasnip"
+						local e2 = entry2.source.name == "luasnip"
 
 						if e1 and not e2 then
 							return true
@@ -88,6 +83,7 @@ return {
         format = lspkind.cmp_format({
           maxwidth = 50,
           ellipsis_char = "...",
+          show_labelDetails = true,
         }),
       },
     })

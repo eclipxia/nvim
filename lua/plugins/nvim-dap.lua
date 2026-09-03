@@ -46,6 +46,23 @@ return {
         },
       }
 
+      -- C# (netcoredbg, installed via Mason)
+      dap.adapters.coreclr = {
+        type = "executable",
+        command = vim.fn.exepath("netcoredbg"),
+        args = { "--interpreter=vscode" },
+      }
+      dap.configurations.cs = {
+        {
+          type = "coreclr",
+          name = "Launch build (dotnet)",
+          request = "launch",
+          program = function()
+            return vim.fn.input("Path to dll: ", vim.fn.getcwd() .. "/bin/Debug/", "file")
+          end,
+        },
+      }
+
       require("dapui").setup({})
       require("nvim-dap-virtual-text").setup({ commented = true })
 
@@ -63,13 +80,13 @@ return {
       local set = function(keys, cmd, desc)
         vim.keymap.set("n", keys, cmd, { noremap = true, silent = true, desc = desc })
       end
-      set("<leader>db", function() dap.toggle_breakpoint() end, "Toggle breakpoint")
-      set("<leader>dc", function() dap.continue() end, "Continue")
-      set("<leader>do", function() dap.step_over() end, "Step over")
-      set("<leader>di", function() dap.step_into() end, "Step into")
-      set("<leader>dO", function() dap.step_out() end, "Step out")
-      set("<leader>dq", function() dap.terminate() end, "Terminate")
-      set("<leader>du", function() dapui.toggle() end, "Toggle DAP UI")
+      set("<leader>xb", function() dap.toggle_breakpoint() end, "Toggle breakpoint")
+      set("<leader>xc", function() dap.continue() end, "Continue")
+      set("<leader>xo", function() dap.step_over() end, "Step over")
+      set("<leader>xi", function() dap.step_into() end, "Step into")
+      set("<leader>xO", function() dap.step_out() end, "Step out")
+      set("<leader>xq", function() dap.terminate() end, "Terminate")
+      set("<leader>xu", function() dapui.toggle() end, "Toggle DAP UI")
     end,
   },
 }

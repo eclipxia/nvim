@@ -52,6 +52,10 @@ return {
                         set("n", "K", vim.lsp.buf.hover, "Show documentation")
                     end
                     set("n", "<leader>rs", ":LspRestart<CR>", "Restart LSP")
+
+                    if client and client:supports_method("textDocument/inlayHint") then
+                        vim.lsp.inlay_hint.enable(true, { bufnr = ev.buf })
+                    end
                 end,
             })
 
@@ -94,6 +98,22 @@ return {
                             end,
                         })
                         vim.lsp.enable("svelte")
+                    end,
+
+                    ["pyright"] = function()
+                        vim.lsp.config("pyright", {
+                            capabilities = capabilities,
+                            settings = {
+                                python = {
+                                    analysis = {
+                                        inlayHints = {
+                                            callArgumentNames = "all",
+                                        },
+                                    },
+                                },
+                            },
+                        })
+                        vim.lsp.enable("pyright")
                     end,
 
                     ["graphql"] = function()

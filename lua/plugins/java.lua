@@ -40,6 +40,15 @@ return {
         settings = {
           java = {
             signatureHelp = { enabled = true },
+            inlayHints = {
+              parameterNames = { enabled = 'all' },
+            },
+            format = {
+              settings = {
+                url = home .. '/.config/nvim/eclipse-formatter.xml',
+                profile = '80col',
+              },
+            },
             import = {
               gradle = {
                 enabled = true,
@@ -71,13 +80,19 @@ return {
           set('n', '<leader>oi', jdtls.organize_imports, 'Organize imports')
           set('n', '<leader>tc', jdtls.test_class, 'Test class')
           set('n', '<leader>tm', jdtls.test_nearest_method, 'Test nearest method')
+          vim.lsp.inlay_hint.enable(true, { bufnr = bufnr })
 
           jdtls.setup_dap({ hotcodereplace = 'auto' })
           require('jdtls.dap').setup_dap_main_class_configs()
         end,
       }
 
-      require('jdtls').start_or_attach(config)
+      vim.api.nvim_create_autocmd('BufEnter', {
+        pattern = '*.java',
+        callback = function()
+          require('jdtls').start_or_attach(config)
+        end,
+      })
     end,
   },
 }
