@@ -30,6 +30,29 @@ local autocommands = {
 	},
 
 	{
+		"BufEnter",
+		{
+			pattern = { "*.java", "*.cs", "*.csx", "*.py" },
+			callback = function()
+				vim.opt_local.textwidth = 120
+				vim.opt_local.formatoptions:append("t")
+			end,
+		},
+	},
+
+	{
+		"BufWritePre",
+		{
+			pattern = { "*.java", "*.cs", "*.csx", "*.py" },
+			callback = function()
+				local view = vim.fn.winsaveview()
+				vim.cmd("keepjumps normal! gggqG")
+				vim.fn.winrestview(view)
+			end,
+		},
+	},
+
+	{
 		"BufWinEnter",
 		{
 			pattern = { "*.md", "*.txt", "*.tex" },
@@ -70,4 +93,3 @@ local autocommands = {
 for _, autocmd in ipairs(autocommands) do
 	vim.api.nvim_create_autocmd(autocmd[1], autocmd[2])
 end
-

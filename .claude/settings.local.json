@@ -1,0 +1,20 @@
+{
+  "permissions": {
+    "allow": [
+      "WebFetch(domain:github.com)",
+      "Bash(nvim --headless \"+Lazy! sync\" -c \"qa\")",
+      "Bash(nvim --headless -c \"e /tmp/x.lua\" -c \"sleep 300m\" -c \"messages\" -c \"qa\")",
+      "Bash(nvim --headless -c \"e /tmp/x.py\" -c \"sleep 300m\" -c \"messages\" -c \"qa\")",
+      "Bash(luac -p lua/plugins/nvim-dap.lua)",
+      "Bash(nvim --headless -c \"sleep 300m\" -c \"messages\" -c \"qa\")",
+      "Bash(nvim --headless -c \"lua vim.g.mapleader = ' '\" -c \"MasonInstall java-debug-adapter java-test\" -c \"sleep 15\" -c \"qa\")",
+      "Bash(nvim --headless -c \"lua vim.g.mapleader = ' '\" -c \"lua local mp = vim.fn.stdpath\\('data'\\) .. '/mason/packages'; local da = vim.fn.glob\\(mp .. '/java-debug-adapter/extension/server/com.microsoft.java.debug.plugin-*.jar'\\); local jt = vim.fn.glob\\(mp .. '/java-test/extension/server/*.jar'\\); print\\('debug_adapter:', da\\); print\\('test_jars_count:', #vim.split\\(jt, '\\\\n'\\)\\)\" -c \"qa\")",
+      "Bash(nvim --headless -c \"lua vim.g.mapleader = ' '\" \"src/main/java/com/example/Main.java\" -c \"lua vim.defer_fn\\(function\\(\\) vim.cmd\\('qa'\\) end, 15000\\)\")",
+      "Bash(nvim --headless -c 'lua vim.g.mapleader = '\\\\'' '\\\\''' src/main/java/com/example/Main.java -c 'lua vim.defer_fn\\(function\\(\\) print\\('\\\\''KEYMAP_OI:'\\\\'', vim.fn.maparg\\('\\\\''<leader>oi'\\\\'', '\\\\''n'\\\\''\\) ~= '\\\\'''\\\\''\\); print\\('\\\\''KEYMAP_TC:'\\\\'', vim.fn.maparg\\('\\\\''<leader>tc'\\\\'', '\\\\''n'\\\\''\\) ~= '\\\\'''\\\\''\\); vim.cmd\\('\\\\''qa'\\\\''\\) end, 15000\\)')",
+      "Bash(git add *)",
+      "Bash(git commit -m ' *)",
+      "Bash(nvim --headless -c \"lua vim.schedule\\(function\\(\\) local ok, err = pcall\\(function\\(\\) require\\('lazy'\\).setup end\\) end\\)\" -c \"redir! > /tmp/nvim_msgs.txt\" -c \"silent messages\" -c \"redir END\" -c \"qa\")",
+      "Read(//tmp/**)"
+    ]
+  }
+}
