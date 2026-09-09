@@ -18,7 +18,9 @@ winget install --silent --accept-source-agreements --accept-package-agreements `
     sharkdp.fd `
     OpenJS.NodeJS.LTS `
     Python.Python.3.12 `
-    zig.zig
+    zig.zig `
+    Microsoft.DotNet.SDK.8 `
+    EclipseAdoptium.Temurin.21.JDK
 
 # LuaRocks (needed for `luacheck`) isn't always reliably packaged on winget; try, then warn.
 try {
@@ -26,6 +28,12 @@ try {
 } catch {
     Warn "Could not install LuaRocks via winget. Install it manually from https://luarocks.org/ if you want `luacheck` to work."
 }
+
+# jdtls (needed by lua/plugins/java.lua) isn't Mason-managed and isn't on winget.
+if (-not (Get-Command jdtls -ErrorAction SilentlyContinue)) {
+    Warn "jdtls isn't packaged on winget. Install it manually (e.g. via scoop: 'scoop install jdtls') and make sure it's on PATH."
+}
+Warn "java.lua also expects JDKs under `$HOME\.sdkman\candidates\java` (JavaSE-17/21/25) -- that layout is Linux/macOS-specific (SDKMAN). On Windows, update those runtime paths in lua/plugins/java.lua to point at your installed JDKs instead."
 
 # ---------------------------------------------------------------------------
 # 2. Clone (or update) the config
@@ -64,6 +72,7 @@ $fzfSrc = "$env:LOCALAPPDATA\nvim-data\lazy\telescope-fzf-native.nvim"
 if ((Test-Path "$fzfSrc\src\fzf.c") -and -not (Test-Path "$fzfSrc\build\libfzf.dll")) {
     Log "Building telescope-fzf-native with zig cc"
     Push-Location $fzfSrc
+    New-Item -ItemType Directory -Force -Path build | Out-Null
     zig cc -O3 -Wall -Werror -fpic -std=gnu99 -shared src/fzf.c -o build/libfzf.dll
     Pop-Location
 } else {
