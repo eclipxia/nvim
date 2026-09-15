@@ -2,6 +2,7 @@ return {
   {
     'mfussenegger/nvim-jdtls',
     ft = 'java',
+    cond = require('lang').any('java'),
     dependencies = {
       'mfussenegger/nvim-dap',
     },

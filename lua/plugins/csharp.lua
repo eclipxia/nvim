@@ -6,6 +6,12 @@ return {
 	-- config() function (which sets on_attach/settings/capabilities) would
 	-- get a chance to run. Load eagerly (just the lua module, not the
 	-- language server itself) so our config is in place first.
+	--
+	-- cond = only("cs"): eager load means every profile pays roslyn's
+	-- startup cost just by having the spec enabled, unlike ft-gated
+	-- plugins. Restrict it to the csvim profile (NVIM_LANG=cs); plain
+	-- nvim/jvim/pvim never load it at all.
+	cond = require("lang").only("cs"),
 	lazy = false,
 	dependencies = { "hrsh7th/cmp-nvim-lsp" },
 	config = function()
