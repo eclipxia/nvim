@@ -7,19 +7,23 @@ function ColorMyPencils(color)
 end
 
 return {
-	{ "Mofiqul/dracula.nvim",
-  config = function()
-    require("dracula").setup({
-      colors = {
-        bg = "#000000",  -- pure black background
-        black = "#000000",  -- also override the "black" color
-      },
-    })
-  end,
+	{
+		"Mofiqul/dracula.nvim",
+		lazy = false,
+		priority = 1000,
+		config = function()
+			require("dracula").setup({
+				colors = {
+					bg = "#000000",  -- pure black background
+					black = "#000000",  -- also override the "black" color
+				},
+			})
+			ColorMyPencils("dracula")
+		end,
 	},
 	{
 		"navarasu/onedark.nvim",
-		priority = 1000, -- make sure to load this before all the other start plugins
+		lazy = true,
 		config = function()
 			require('onedark').setup {
 				colors = {
@@ -29,27 +33,21 @@ return {
 				},
 				style = 'darker'
 			}
-			-- Enable theme
-			require('onedark').load()
 		end
 	},
 	{
-    "kartikp10/noctis.nvim",
-    dependencies = { "rktjmp/lush.nvim" },
-    config = function()
-    end,
+		"kartikp10/noctis.nvim",
+		lazy = true,
+		dependencies = { "rktjmp/lush.nvim" },
 	},
 	{
 		"rose-pine/neovim",
 		name = "rose-pine",
+		lazy = true,
 		config = function()
-				require('rose-pine').setup({
-						disable_background = true,
-				})
-
-				vim.cmd("colorscheme dracula")
-
-				ColorMyPencils()
+			require('rose-pine').setup({
+				disable_background = true,
+			})
 		end
 	},
 }

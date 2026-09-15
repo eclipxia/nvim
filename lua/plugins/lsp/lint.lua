@@ -8,6 +8,7 @@ return{
       typescript = { "eslint_d" },
       python = { "pylint" },
       lua = { "luacheck" },
+      java = { "checkstyle" },
     }
 
     vim.api.nvim_create_autocmd({ "BufWritePost", "BufReadPost", "InsertLeave" }, {

@@ -59,79 +59,112 @@ return {
                 end,
             })
 
-            -- Configure Mason Handlers with Neovim 0.11+ syntax
-            require("mason-lspconfig").setup({
-                ensure_installed = { "lua_ls", "rust_analyzer", "pyright", "clangd" },
-                handlers = {
-                    -- Default handler
-                    function(server_name)
-                        vim.lsp.config(server_name, { capabilities = capabilities })
-                        vim.lsp.enable(server_name)
-                    end,
+            -- mason-lspconfig v2 dropped `handlers`/`setup_handlers`: it now just
+            -- installs servers and auto-enables the installed ones. Per-server
+            -- tweaks go through vim.lsp.config(), and "*" is the default merged
+            -- into every server.
+            vim.lsp.config("*", { capabilities = capabilities })
 
-                    ["lua_ls"] = function()
-                        vim.lsp.config("lua_ls", {
-                            capabilities = capabilities,
-                            settings = {
-                                Lua = {
-                                    completion = { callSnippet = "Replace" },
-                                    diagnostics = { globals = { "vim" } },
-                                    workspace = { checkThirdParty = false },
-                                    runtime = { version = "LuaJIT" },
-                                },
-                            },
-                        })
-                        vim.lsp.enable("lua_ls")
-                    end,
-
-
-                    ["svelte"] = function()
-                        vim.lsp.config("svelte", {
-                            capabilities = capabilities,
-                            on_attach = function(client)
-                                vim.api.nvim_create_autocmd("BufWritePost", {
-                                    pattern = { "*.js", "*.ts" },
-                                    callback = function(ctx)
-                                        client.notify("$/onDidChangeTsOrJsFile", { uri = ctx.match })
-                                    end,
-                                })
-                            end,
-                        })
-                        vim.lsp.enable("svelte")
-                    end,
-
-                    ["pyright"] = function()
-                        vim.lsp.config("pyright", {
-                            capabilities = capabilities,
-                            settings = {
-                                python = {
-                                    analysis = {
-                                        inlayHints = {
-                                            callArgumentNames = "all",
-                                        },
-                                    },
-                                },
-                            },
-                        })
-                        vim.lsp.enable("pyright")
-                    end,
-
-                    ["graphql"] = function()
-                        vim.lsp.config("graphql", {
-                            capabilities = capabilities,
-                            filetypes = { "graphql", "gql", "svelte", "typescriptreact", "javascriptreact" },
-                        })
-                        vim.lsp.enable("graphql")
-                    end,
-
-                    ["emmet_ls"] = function()
-                        vim.lsp.config("emmet_ls", {
-                            capabilities = capabilities,
-                            filetypes = { "html", "typescriptreact", "javascriptreact", "css", "sass", "scss", "less", "svelte" },
-                        })
-                        vim.lsp.enable("emmet_ls")
-                    end,
+            vim.lsp.config("lua_ls", {
+                settings = {
+                    Lua = {
+                        completion = { callSnippet = "Replace" },
+                        diagnostics = { globals = { "vim" } },
+                        workspace = { checkThirdParty = false },
+                        runtime = { version = "LuaJIT" },
+                    },
                 },
+            })
+
+            -- @tailwind / @apply / @screen aren't real CSS at-rules, so
+            -- vscode-css-language-server flags them. Silence just that.
+            local css_lint = { unknownAtRules = "ignore" }
+            vim.lsp.config("cssls", {
+                settings = {
+                    css = { lint = css_lint },
+                    scss = { lint = css_lint },
+                    less = { lint = css_lint },
+                },
+            })
+
+            vim.lsp.config("svelte", {
+                on_attach = function(client)
+                    vim.api.nvim_create_autocmd("BufWritePost", {
+                        pattern = { "*.js", "*.ts" },
+                        callback = function(ctx)
+                            client:notify("$/onDidChangeTsOrJsFile", { uri = ctx.match })
+                        end,
+                    })
+                end,
+            })
+
+            -- Point pyright at the project's own interpreter, since pyright
+            -- doesn't auto-discover venvs on its own.
+            local function project_python_path(root_dir)
+                local bin = vim.fn.has("win32") == 1 and "Scripts/python.exe" or "bin/python"
+                for _, dir in ipairs({ ".venv", "venv", ".env", "env" }) do
+                    local candidate = root_dir .. "/" .. dir .. "/" .. bin
+                    if vim.fn.executable(candidate) == 1 then
+                        return candidate
+                    end
+                end
+                return vim.fn.exepath("python3") or vim.fn.exepath("python")
+            end
+
+            vim.lsp.config("pyright", {
+                settings = {
+                    python = { analysis = { inlayHints = { callArgumentNames = "all" } } },
+                },
+                -- Native vim.lsp.config has no on_new_config hook (that was
+                -- nvim-lspconfig-only); before_init is the real one, and it
+                -- must mutate settings.python in place (not reassign) so the
+                -- client's already-captured settings table picks it up.
+                before_init = function(_, config)
+                    config.settings.python.pythonPath = project_python_path(config.root_dir)
+                end,
+            })
+
+            -- sqls has no project-local config file of its own: it only reads
+            -- ~/.config/sqls/config.yml, a -c path, or initializationOptions.
+            -- So pick up a per-project ".sqls.json" at the root ourselves and
+            -- hand it over as connectionConfig. JSON rather than sqls' own YAML
+            -- so vim.json.decode can read it with no extra dependency.
+            vim.lsp.config("sqls", {
+                root_markers = { ".sqls.json", "config.yml", ".git" },
+                -- Go 1.23+ rejects certs with a negative serial number, which is
+                -- exactly what azure-sql-edge self-signs on first boot, so every
+                -- connection dies in the TLS handshake. Opt this process back into
+                -- the old behaviour rather than relying on GODEBUG from the shell.
+                cmd_env = { GODEBUG = "x509negativeserial=1" },
+                before_init = function(params, config)
+                    local root = config.root_dir or params.rootPath
+                    if not root then
+                        return
+                    end
+                    local file = root .. "/.sqls.json"
+                    if vim.fn.filereadable(file) ~= 1 then
+                        return
+                    end
+                    local ok, conn = pcall(vim.json.decode, table.concat(vim.fn.readfile(file), "\n"))
+                    if not ok then
+                        vim.notify("sqls: bad .sqls.json: " .. tostring(conn), vim.log.levels.ERROR)
+                        return
+                    end
+                    params.initializationOptions =
+                        vim.tbl_extend("force", params.initializationOptions or {}, { connectionConfig = conn })
+                end,
+            })
+
+            vim.lsp.config("graphql", {
+                filetypes = { "graphql", "gql", "svelte", "typescriptreact", "javascriptreact" },
+            })
+
+            vim.lsp.config("emmet_ls", {
+                filetypes = { "html", "typescriptreact", "javascriptreact", "css", "sass", "scss", "less", "svelte" },
+            })
+
+            require("mason-lspconfig").setup({
+                ensure_installed = { "lua_ls", "rust_analyzer", "pyright", "clangd", "sqls", "html", "cssls", "tailwindcss" },
             })
 
             -- Diagnostics

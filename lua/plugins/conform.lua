@@ -15,15 +15,66 @@ return {
     opts = {
         formatters_by_ft = {
             lua = { "stylua" },
-            python = { "black" },
+            python = { "isort", "black" },
             java = { "organize_java_imports", "lsp_format" },
+            cs = { "csharpier" },
+            sql = { "sql_formatter", "sql_go_newline" },
+            html = { "prettierd" },
+            css = { "css_beautify" },
         },
         formatters = {
             stylua = {
-                prepend_args = { "--column-width", "80" },
+                prepend_args = { "--column-width", "110" },
             },
             black = {
-                prepend_args = { "--line-length", "80" },
+                prepend_args = { "--line-length", "110" },
+            },
+            sql_formatter = {
+                -- Only --language/-l and --config/-c are real CLI flags; tabWidth
+                -- and friends are config keys, so they go through -c as JSON.
+                -- Passing them as flags makes sql-formatter exit 2 and conform
+                -- silently skip the step.
+                prepend_args = {
+                    "--language",
+                    "tsql",
+                    "--config",
+                    vim.json.encode({
+                        tabWidth = 4,
+                        expressionWidth = 50,
+                        keywordCase = "preserve",
+                    }),
+                },
+            },
+            css_beautify = {
+                prepend_args = { "--no-selector-separator-newline" },
+            },
+            sql_go_newline = {
+                -- sql_formatter doesn't know the T-SQL "GO" batch separator,
+                -- so it can end up sharing a line with other text; split it
+                -- onto its own line.
+                format = function(_, _, lines, callback)
+                    local out = {}
+                    for _, l in ipairs(lines) do
+                        local rest = l
+                        local before, after = rest:match("^(.-)%f[%a]GO%f[%A](.-)$")
+                        if not before then
+                            table.insert(out, l)
+                        else
+                            while before do
+                                if before:match("%S") then
+                                    table.insert(out, (before:gsub("^%s+", ""):gsub("%s+$", "")))
+                                end
+                                table.insert(out, "GO")
+                                rest = after
+                                before, after = rest:match("^(.-)%f[%a]GO%f[%A](.-)$")
+                            end
+                            if rest:match("%S") then
+                                table.insert(out, (rest:gsub("^%s+", ""):gsub("%s+$", "")))
+                            end
+                        end
+                    end
+                    callback(nil, out)
+                end,
             },
             organize_java_imports = {
                 -- Groups imports by top-level package (statics, then java.*,

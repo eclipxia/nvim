@@ -2,6 +2,17 @@ local autocommands = {
 	{
 		"BufEnter",
 		{
+			pattern = "*",
+			callback = function()
+				vim.opt_local.textwidth = 110
+				vim.opt_local.colorcolumn = "110"
+			end,
+		},
+	},
+
+	{
+		"BufEnter",
+		{
 			pattern = {
 				"*.asm",
 				"*.c",
@@ -21,33 +32,11 @@ local autocommands = {
 				"*.s",
 				"*.sh",
 				"*.zig",
+				"*.sql",
 			},
 			callback = function()
 				vim.opt.shiftwidth = 4
 				vim.opt.tabstop = 4
-			end,
-		},
-	},
-
-	{
-		"BufEnter",
-		{
-			pattern = { "*.java", "*.cs", "*.csx", "*.py" },
-			callback = function()
-				vim.opt_local.textwidth = 120
-				vim.opt_local.formatoptions:append("t")
-			end,
-		},
-	},
-
-	{
-		"BufWritePre",
-		{
-			pattern = { "*.java", "*.cs", "*.csx", "*.py" },
-			callback = function()
-				local view = vim.fn.winsaveview()
-				vim.cmd("keepjumps normal! gggqG")
-				vim.fn.winrestview(view)
 			end,
 		},
 	},
