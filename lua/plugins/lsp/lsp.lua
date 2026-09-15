@@ -17,10 +17,22 @@ return {
         config = function()
             require("mason").setup()
 
-            -- Setup Tool Installer (Linters/Formatters)
-            require("mason-tool-installer").setup({
-                ensure_installed = { "flake8", "pylint", "stylua", "black", "isort", "java-debug-adapter", "java-test", "netcoredbg", "csharpier", "checkstyle", "sql-formatter", "prettierd" },
-            })
+            -- Setup Tool Installer (Linters/Formatters). Gated by NVIM_LANG
+            -- so jvim/csvim/pvim only check their own tools on every start;
+            -- plain nvim (NVIM_LANG unset) still checks everything.
+            local lang = require("lang").active
+            local by_lang = {
+                python = { "flake8", "pylint", "black", "isort" },
+                java = { "java-debug-adapter", "java-test", "checkstyle" },
+                cs = { "netcoredbg", "csharpier" },
+            }
+            local tools = { "stylua", "prettierd", "sql-formatter" }
+            for l, list in pairs(by_lang) do
+                if lang == nil or lang == l then
+                    vim.list_extend(tools, list)
+                end
+            end
+            require("mason-tool-installer").setup({ ensure_installed = tools })
 
             require("fidget").setup({})
         end,
