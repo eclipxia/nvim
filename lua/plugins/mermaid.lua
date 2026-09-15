@@ -1,5 +1,6 @@
 return{
   "selimacerbas/markdown-preview.nvim",
+  ft = "markdown",
   dependencies = { "selimacerbas/live-server.nvim" },
   config = function()
 		require("markdown_preview").setup({

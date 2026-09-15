@@ -11,8 +11,6 @@ vim.keymap.set("n", "N", "Nzzzv")
 -- Toggle nvim-tree with <leader>e
 vim.keymap.set("n", "<leader>e", "<cmd>NvimTreeToggle<CR>", opts)
 vim.keymap.set("n", "<leader>bd", ":bd!<CR>", { desc = "Force close buffer" })
--- Close current window with <leader>q
-vim.keymap.set("n", "<leader>q", "<cmd>q<CR>", opts)
 
 vim.keymap.set("v", "J", ":m '>+1<CR>gv=gv")
 --move highlighted stuffs
@@ -21,9 +19,6 @@ vim.keymap.set("v", "K", ":m '<-2<CR>gv=gv")
 -- Add more keymaps below as needed
 -- Save current file with <leader>w
 vim.keymap.set("n", "<leader>w", "<cmd>write<CR>", { noremap = true, silent = true })
-
--- Quit current window with <leader>q
-vim.keymap.set("n", "<leader>q", "<cmd>quit<CR>", { noremap = true, silent = true })
 
 vim.keymap.set("t", "<C-:>", "<C-\\><C-n>q:$a", { desc = "Exit terminal and enter command mode with cursor at end" })
 
@@ -48,6 +43,10 @@ vim.keymap.set("t", "<C-S-h>", "<C-\\><C-n><C-w>H", { desc = "Move window to lef
 vim.keymap.set("t", "<C-S-l>", "<C-\\><C-n><C-w>L", { desc = "Move window to right (terminal)" })
 vim.keymap.set("t", "<C-S-k>", "<C-\\><C-n><C-w>K", { desc = "Move window to top (terminal)" })
 vim.keymap.set("t", "<C-S-j>", "<C-\\><C-n><C-w>J", { desc = "Move window to bottom (terminal)" })
+
+-- Quit current window with <leader>q
+vim.keymap.set("n", "<leader>q", "<cmd>quit<CR>", { noremap = true, silent = true })
+
 vim.keymap.set("n", "<C-h>", "<C-w>h", { desc = "Move to left split" })
 vim.keymap.set("n", "<C-j>", "<C-w>j", { desc = "Move to below split" })
 vim.keymap.set("n", "<C-k>", "<C-w>k", { desc = "Move to above split" })
@@ -56,4 +55,5 @@ vim.keymap.set("t", "<C-h>", "<C-\\><C-n><C-w>h", { desc = "Move to left split f
 vim.keymap.set("t", "<C-j>", "<C-\\><C-n><C-w>j", { desc = "Move to below split from terminal" })
 vim.keymap.set("t", "<C-k>", "<C-\\><C-n><C-w>k", { desc = "Move to above split from terminal" })
 vim.keymap.set("t", "<C-l>", "<C-\\><C-n><C-w>l", { desc = "Move to right split from terminal" })
-vim.keymap.set("n", "<leader>t", "<cmd>lua toggle_bottom_term()<CR>", { desc = "Toggle bottom terminal" })
+-- <leader>t (toggle bottom terminal) is bound in plugins/toggleterm.lua's
+-- `keys`, so the plugin lazy-loads on first press instead of unconditionally.

@@ -8,6 +8,15 @@ return {
       "mfussenegger/nvim-dap-python",
       "theHamsta/nvim-dap-virtual-text",
     },
+    keys = {
+      { "<leader>xb", function() require("dap").toggle_breakpoint() end, desc = "Toggle breakpoint" },
+      { "<leader>xc", function() require("dap").continue() end, desc = "Continue" },
+      { "<leader>xo", function() require("dap").step_over() end, desc = "Step over" },
+      { "<leader>xi", function() require("dap").step_into() end, desc = "Step into" },
+      { "<leader>xO", function() require("dap").step_out() end, desc = "Step out" },
+      { "<leader>xq", function() require("dap").terminate() end, desc = "Terminate" },
+      { "<leader>xu", function() require("dapui").toggle() end, desc = "Toggle DAP UI" },
+    },
     config = function()
       local dap = require("dap")
       local dapui = require("dapui")
@@ -76,18 +85,6 @@ return {
       dap.listeners.after.event_initialized["dapui_config"] = function() dapui.open() end
       dap.listeners.before.event_terminated["dapui_config"] = function() dapui.close() end
       dap.listeners.before.event_exited["dapui_config"] = function() dapui.close() end
-
-      -- Keymaps
-      local set = function(keys, cmd, desc)
-        vim.keymap.set("n", keys, cmd, { noremap = true, silent = true, desc = desc })
-      end
-      set("<leader>xb", function() dap.toggle_breakpoint() end, "Toggle breakpoint")
-      set("<leader>xc", function() dap.continue() end, "Continue")
-      set("<leader>xo", function() dap.step_over() end, "Step over")
-      set("<leader>xi", function() dap.step_into() end, "Step into")
-      set("<leader>xO", function() dap.step_out() end, "Step out")
-      set("<leader>xq", function() dap.terminate() end, "Terminate")
-      set("<leader>xu", function() dapui.toggle() end, "Toggle DAP UI")
     end,
   },
 }

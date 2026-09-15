@@ -1,6 +1,7 @@
 return {
   "HiPhish/rainbow-delimiters.nvim",
   submodules = false,
+  event = "BufReadPost",
   config = function()
     local rd = require("rainbow-delimiters")
     require("rainbow-delimiters.setup").setup({

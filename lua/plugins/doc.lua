@@ -1,6 +1,10 @@
 return {
     "danymat/neogen",
     dependencies = "nvim-treesitter/nvim-treesitter",
+    cmd = "Neogen",
+    keys = {
+        { "<leader>k", function() require("neogen").generate() end, desc = "Generate docstring" },
+    },
     config = function()
         require("neogen").setup({
             languages = {
@@ -16,9 +20,5 @@ return {
                 },
             },
         })
-
-        vim.keymap.set("n", "<leader>k", function()
-            require("neogen").generate()
-        end, { desc = "Generate docstring" })
     end,
 }
