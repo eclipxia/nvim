@@ -21,33 +21,4 @@ return {
 			ColorMyPencils("dracula")
 		end,
 	},
-	{
-		"navarasu/onedark.nvim",
-		lazy = true,
-		config = function()
-			require('onedark').setup {
-				colors = {
-					bg0 = "#000000",
-					bg1 = "#000000",
-					fg = "#dddddd",
-				},
-				style = 'darker'
-			}
-		end
-	},
-	{
-		"kartikp10/noctis.nvim",
-		lazy = true,
-		dependencies = { "rktjmp/lush.nvim" },
-	},
-	{
-		"rose-pine/neovim",
-		name = "rose-pine",
-		lazy = true,
-		config = function()
-			require('rose-pine').setup({
-				disable_background = true,
-			})
-		end
-	},
 }

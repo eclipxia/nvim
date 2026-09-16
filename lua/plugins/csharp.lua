@@ -1,27 +1,19 @@
 return {
 	"seblyng/roslyn.nvim",
-	-- Not ft = "cs": the plugin's own plugin/roslyn.lua calls
-	-- vim.lsp.enable("roslyn"), which starts the client for the buffer that
-	-- just triggered the FileType event immediately on load -- before this
-	-- config() function (which sets on_attach/settings/capabilities) would
-	-- get a chance to run. Load eagerly (just the lua module, not the
-	-- language server itself) so our config is in place first.
+	-- ft = "cs": the plugin's own plugin/roslyn.lua calls
+	-- vim.lsp.enable("roslyn") on load, which would start the client before
+	-- our settings/on_attach below are registered -- except lazy.nvim always
+	-- runs a plugin's `init` at startup, before any ft/event-triggered load,
+	-- so putting the vim.lsp.config() call in `init` (instead of `config`)
+	-- guarantees it lands first regardless of when roslyn.nvim itself loads.
 	--
-	-- cond = only("cs"): eager load means every profile pays roslyn's
-	-- startup cost just by having the spec enabled, unlike ft-gated
-	-- plugins. Restrict it to the csvim profile (NVIM_LANG=cs); plain
-	-- nvim/jvim/pvim never load it at all.
+	-- cond = only("cs") restricts registration (and thus `init` running at
+	-- all) to the csvim profile (NVIM_LANG=cs); plain nvim/jvim/pvim never
+	-- pay for it.
 	cond = require("lang").only("cs"),
-	lazy = false,
-	dependencies = { "hrsh7th/cmp-nvim-lsp" },
-	config = function()
-		-- roslyn.nvim's own setup() only accepts plugin-level options
-		-- (filewatching, choose_target, ...); server settings/capabilities/
-		-- on_attach must go through vim.lsp.config, per its README.
-		require("roslyn").setup({})
-
+	ft = { "cs", "razor" },
+	init = function()
 		vim.lsp.config("roslyn", {
-			capabilities = require("cmp_nvim_lsp").default_capabilities(),
 			settings = {
 				["csharp|inlay_hints"] = {
 					csharp_enable_inlay_hints_for_parameters = true,
@@ -105,6 +97,70 @@ return {
 						end
 					end,
 				})
+			end,
+			on_exit = function(code, signal, _)
+				-- code=1/signal=0 is roslyn-language-server's signature for
+				-- "couldn't attach to the shared workspace daemon" -- almost
+				-- always another Neovim session already holding this same
+				-- project's Roslyn workspace, not a config problem.
+				if code ~= 1 or signal ~= 0 then
+					return
+				end
+
+				-- There is exactly ONE Microsoft.CodeAnalysis.LanguageServer
+				-- --daemon process per machine, shared by every C# project you
+				-- have open -- not per-project. Killing it recovers this
+				-- session but also drops Roslyn for any other project/session
+				-- currently attached to it, so always ask first.
+				if vim.fn.has("win32") == 1 then
+					vim.notify(
+						"Roslyn server exited immediately (code 1, signal 0), usually because "
+							.. "another Neovim session already has this project open in Roslyn. "
+							.. "Close duplicate sessions and reopen this file.",
+						vim.log.levels.WARN,
+						{ title = "roslyn.nvim" }
+					)
+					return
+				end
+
+				vim.schedule(function()
+					local choice = vim.fn.confirm(
+						"Roslyn server exited immediately (code 1, signal 0) -- likely another "
+							.. "Neovim session already holds this project's Roslyn workspace.\n\n"
+							.. "Kill the shared roslyn daemon to recover? This also drops Roslyn "
+							.. "for any OTHER C# project/session currently using it.",
+						"&Kill it\n&Leave it",
+						2
+					)
+					if choice ~= 1 then
+						return
+					end
+
+					vim.system(
+						{ "pgrep", "-f", "CodeAnalysis.LanguageServer.*--daemon" },
+						{ text = true },
+						function(res)
+							vim.schedule(function()
+								local pids = {}
+								for pid in (res.stdout or ""):gmatch("%d+") do
+									table.insert(pids, pid)
+								end
+								if #pids == 0 then
+									vim.notify("No roslyn daemon process found to kill.", vim.log.levels.WARN, { title = "roslyn.nvim" })
+									return
+								end
+								for _, pid in ipairs(pids) do
+									vim.system({ "kill", pid })
+								end
+								vim.notify(
+									"Killed roslyn daemon (pid " .. table.concat(pids, ", ") .. "). Reopen the file for a fresh client.",
+									vim.log.levels.WARN,
+									{ title = "roslyn.nvim" }
+								)
+							end)
+						end
+					)
+				end)
 			end,
 		})
 

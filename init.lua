@@ -1,4 +1,4 @@
-vim.opt.spell = true
+vim.env.PATH = vim.env.PATH .. ":/opt/homebrew/bin"
 vim.opt.spelllang = { "en_us", "fr" }
 vim.opt.showmode = false
 vim.o.guifont = "JetBrainsMono Nerd Font:h14"
@@ -17,4 +17,3 @@ require("settings")
 require("config.lazy") -- sets up lazy.nvim with only valid plugin specs
 require("keymaps")
 require("autocmds")
-vim.env.PATH = vim.env.PATH .. ":/opt/homebrew/bin"

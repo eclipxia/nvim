@@ -1,9 +1,13 @@
 return {
   "folke/todo-comments.nvim",
   event = { "BufReadPost", "BufNewFile" },
-  dependencies = { 
+  dependencies = {
     "nvim-lua/plenary.nvim",
-    "nvim-telescope/telescope.nvim",
+    -- NOT telescope.nvim: TodoTelescope (plugin/todo.vim) just runs
+    -- `Telescope todo-comments todo`, which is telescope's own `cmd` trigger.
+    -- Declaring it as a hard dependency here forced telescope to load
+    -- eagerly alongside todo-comments (on BufReadPost/BufNewFile, i.e. on
+    -- every real file open) regardless of telescope's own lazy spec.
   },
   opts = {},
   keys = {

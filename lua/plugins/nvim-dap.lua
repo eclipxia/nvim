@@ -5,7 +5,7 @@ return {
     dependencies = {
       "nvim-neotest/nvim-nio",
       "rcarriga/nvim-dap-ui",
-      "mfussenegger/nvim-dap-python",
+      { "mfussenegger/nvim-dap-python", lazy = true },
       "theHamsta/nvim-dap-virtual-text",
     },
     keys = {

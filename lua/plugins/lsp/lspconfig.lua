@@ -3,8 +3,8 @@ return {
         "neovim/nvim-lspconfig",
         event = { "BufReadPre", "BufNewFile" },
         dependencies = {
-            "williamboman/mason.nvim",
-            "williamboman/mason-lspconfig.nvim",
+            "mason-org/mason.nvim",
+            "mason-org/mason-lspconfig.nvim",
             "hrsh7th/cmp-nvim-lsp",
             { "antosha417/nvim-lsp-file-operations", config = true },
             -- Use lazydev instead of neodev (neodev is deprecated)
@@ -102,13 +102,23 @@ return {
             -- doesn't auto-discover venvs on its own.
             local function project_python_path(root_dir)
                 local bin = vim.fn.has("win32") == 1 and "Scripts/python.exe" or "bin/python"
+                -- The shell's already-activated venv (tmux, direnv, etc.) wins
+                -- over guessing a directory name, since a stale .venv/ left
+                -- over in the project root would otherwise shadow it.
+                if vim.env.VIRTUAL_ENV then
+                    local candidate = vim.env.VIRTUAL_ENV .. "/" .. bin
+                    if vim.fn.executable(candidate) == 1 then
+                        return candidate
+                    end
+                end
                 for _, dir in ipairs({ ".venv", "venv", ".env", "env" }) do
                     local candidate = root_dir .. "/" .. dir .. "/" .. bin
                     if vim.fn.executable(candidate) == 1 then
                         return candidate
                     end
                 end
-                return vim.fn.exepath("python3") or vim.fn.exepath("python")
+                local exe = vim.fn.exepath("python3")
+                return exe ~= "" and exe or vim.fn.exepath("python")
             end
 
             vim.lsp.config("pyright", {

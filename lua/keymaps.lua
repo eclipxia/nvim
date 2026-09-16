@@ -57,3 +57,8 @@ vim.keymap.set("t", "<C-k>", "<C-\\><C-n><C-w>k", { desc = "Move to above split 
 vim.keymap.set("t", "<C-l>", "<C-\\><C-n><C-w>l", { desc = "Move to right split from terminal" })
 -- <leader>t (toggle bottom terminal) is bound in plugins/toggleterm.lua's
 -- `keys`, so the plugin lazy-loads on first press instead of unconditionally.
+
+-- Native commenting (nvim ships gcc/gc in vim._core.defaults; no plugin
+-- needed). remap = true because gcc/gc are themselves mappings.
+vim.keymap.set("n", "<leader>/", "gcc", { remap = true, desc = "Toggle comment line" })
+vim.keymap.set("x", "<leader>/", "gc", { remap = true, desc = "Toggle comment block" })

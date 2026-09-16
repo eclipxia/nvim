@@ -2,17 +2,6 @@ local autocommands = {
 	{
 		"BufEnter",
 		{
-			pattern = "*",
-			callback = function()
-				vim.opt_local.textwidth = 110
-				vim.opt_local.colorcolumn = "110"
-			end,
-		},
-	},
-
-	{
-		"BufEnter",
-		{
 			pattern = {
 				"*.asm",
 				"*.c",
@@ -35,8 +24,10 @@ local autocommands = {
 				"*.sql",
 			},
 			callback = function()
-				vim.opt.shiftwidth = 4
-				vim.opt.tabstop = 4
+				-- opt_local: vim.opt here would set the width globally, so it
+				-- leaked into every other buffer until the next BufEnter reset it
+				vim.opt_local.shiftwidth = 4
+				vim.opt_local.tabstop = 4
 			end,
 		},
 	},
@@ -72,8 +63,8 @@ local autocommands = {
 				"*.xml",
 			},
 			callback = function()
-				vim.opt.shiftwidth = 2
-				vim.opt.tabstop = 2
+				vim.opt_local.shiftwidth = 2
+				vim.opt_local.tabstop = 2
 			end,
 		},
 	},
@@ -82,3 +73,12 @@ local autocommands = {
 for _, autocmd in ipairs(autocommands) do
 	vim.api.nvim_create_autocmd(autocmd[1], autocmd[2])
 end
+
+-- Spell checking only where prose lives. Global `vim.opt.spell = true` cost
+-- 36.8ms of startup (the fr spellfile alone is ~32ms of that).
+vim.api.nvim_create_autocmd("FileType", {
+	pattern = { "markdown", "text", "gitcommit", "tex", "rst" },
+	callback = function()
+		vim.opt_local.spell = true
+	end,
+})

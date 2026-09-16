@@ -1,6 +1,6 @@
 return {
     {
-        "williamboman/mason.nvim",
+        "mason-org/mason.nvim",
 			opts = {
 				registries = {
 					'github:mason-org/mason-registry',
@@ -11,7 +11,6 @@ return {
         cmd = { "Mason", "MasonInstall", "MasonUpdate", "MasonLog" },
         event = { "BufReadPre", "BufNewFile" },
         dependencies = {
-            "j-hui/fidget.nvim",
             "WhoIsSethDaniel/mason-tool-installer.nvim",
         },
         config = function()
@@ -33,8 +32,6 @@ return {
                 end
             end
             require("mason-tool-installer").setup({ ensure_installed = tools })
-
-            require("fidget").setup({})
         end,
     }
 }
