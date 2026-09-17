@@ -42,13 +42,7 @@ elif [[ "$os" == "Linux" ]]; then
     if command -v apt-get >/dev/null 2>&1; then
         PM="apt"
         sudo apt-get update
-        sudo apt-get install -y software-properties-common
-        # Ubuntu's own repos ship Neovim way behind current -- this config
-        # uses vim.lsp.config()/vim.lsp.enable() (0.11+) and sqlserver.nvim
-        # needs 0.11.7+, so pull a real version from the neovim PPA instead.
-        sudo add-apt-repository -y ppa:neovim-ppa/stable
-        sudo apt-get update
-        sudo apt-get install -y neovim git ripgrep fd-find python3 python3-pip \
+        sudo apt-get install -y git ripgrep fd-find python3 python3-pip \
             nodejs npm luarocks build-essential unzip curl dotnet-sdk-8.0
         # Debian/Ubuntu ship fd as `fdfind`; expose it as `fd` for plugins that expect that name
         if command -v fdfind >/dev/null 2>&1 && ! command -v fd >/dev/null 2>&1; then
@@ -56,6 +50,25 @@ elif [[ "$os" == "Linux" ]]; then
             ln -sf "$(command -v fdfind)" "$HOME/.local/bin/fd"
             warn "Symlinked fdfind -> ~/.local/bin/fd. Make sure ~/.local/bin is on your PATH."
         fi
+
+        # Ubuntu's own repos ship Neovim way behind current -- this config
+        # uses vim.lsp.config()/vim.lsp.enable() (0.11+) and sqlserver.nvim
+        # needs 0.11.7+. The neovim-ppa/stable PPA doesn't reliably support
+        # every Ubuntu release (apt refuses it as unsigned when there's no
+        # Release file for your codename), so pull the official prebuilt
+        # binary from GitHub instead.
+        log "Installing Neovim from the official GitHub release (bypassing the PPA)"
+        nvim_arch="x86_64"
+        [[ "$(uname -m)" == "aarch64" ]] && nvim_arch="arm64"
+        curl -fsSL -o /tmp/nvim-linux.tar.gz \
+            "https://github.com/neovim/neovim/releases/latest/download/nvim-linux-${nvim_arch}.tar.gz"
+        sudo rm -rf /opt/nvim
+        sudo tar -C /opt -xzf /tmp/nvim-linux.tar.gz
+        sudo mv "/opt/nvim-linux-${nvim_arch}" /opt/nvim
+        rm -f /tmp/nvim-linux.tar.gz
+        mkdir -p "$HOME/.local/bin"
+        ln -sf /opt/nvim/bin/nvim "$HOME/.local/bin/nvim"
+        warn "Symlinked /opt/nvim/bin/nvim -> ~/.local/bin/nvim. Make sure ~/.local/bin is on your PATH."
 
     elif command -v dnf >/dev/null 2>&1; then
         PM="dnf"
