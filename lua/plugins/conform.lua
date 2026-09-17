@@ -18,7 +18,7 @@ return {
             python = { "isort", "black" },
             java = { "organize_java_imports", "lsp_format" },
             cs = { "csharpier" },
-            sql = { "sql_formatter", "sql_go_newline" },
+            sql = { "sqlfluff" },
             html = { "prettierd" },
             css = { "css_beautify" },
         },
@@ -29,52 +29,15 @@ return {
             black = {
                 prepend_args = { "--line-length", "110" },
             },
-            sql_formatter = {
-                -- Only --language/-l and --config/-c are real CLI flags; tabWidth
-                -- and friends are config keys, so they go through -c as JSON.
-                -- Passing them as flags makes sql-formatter exit 2 and conform
-                -- silently skip the step.
-                prepend_args = {
-                    "--language",
-                    "tsql",
-                    "--config",
-                    vim.json.encode({
-                        tabWidth = 4,
-                        expressionWidth = 50,
-                        keywordCase = "preserve",
-                    }),
-                },
-            },
             css_beautify = {
                 prepend_args = { "--no-selector-separator-newline" },
             },
-            sql_go_newline = {
-                -- sql_formatter doesn't know the T-SQL "GO" batch separator,
-                -- so it can end up sharing a line with other text; split it
-                -- onto its own line.
-                format = function(_, _, lines, callback)
-                    local out = {}
-                    for _, l in ipairs(lines) do
-                        local rest = l
-                        local before, after = rest:match("^(.-)%f[%a]GO%f[%A](.-)$")
-                        if not before then
-                            table.insert(out, l)
-                        else
-                            while before do
-                                if before:match("%S") then
-                                    table.insert(out, (before:gsub("^%s+", ""):gsub("%s+$", "")))
-                                end
-                                table.insert(out, "GO")
-                                rest = after
-                                before, after = rest:match("^(.-)%f[%a]GO%f[%A](.-)$")
-                            end
-                            if rest:match("%S") then
-                                table.insert(out, (rest:gsub("^%s+", ""):gsub("%s+$", "")))
-                            end
-                        end
-                    end
-                    callback(nil, out)
-                end,
+            sqlfluff = {
+                -- sqlfluff exits 1 (not 0) whenever it leaves behind a violation
+                -- it can't safely auto-fix (e.g. an ambiguous quoted string) --
+                -- the fixes it *did* make are still valid on stdout, so accept
+                -- exit 1 too or conform discards the output and no-ops on save.
+                exit_codes = { 0, 1 },
             },
             organize_java_imports = {
                 -- Groups imports by top-level package (statics, then java.*,
@@ -154,7 +117,10 @@ return {
             },
         },
         format_on_save = {
-            timeout_ms = 500,
+            -- sqlfluff (Python, dialect+rules to load on every run) regularly
+            -- takes 300-500ms even on a small file, well past the old 500ms
+            -- ceiling meant for fast formatters like stylua/prettierd.
+            timeout_ms = 3000,
             lsp_fallback = true,
         },
     },

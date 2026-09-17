@@ -42,6 +42,12 @@ elif [[ "$os" == "Linux" ]]; then
     if command -v apt-get >/dev/null 2>&1; then
         PM="apt"
         sudo apt-get update
+        sudo apt-get install -y software-properties-common
+        # Ubuntu's own repos ship Neovim way behind current -- this config
+        # uses vim.lsp.config()/vim.lsp.enable() (0.11+) and sqlserver.nvim
+        # needs 0.11.7+, so pull a real version from the neovim PPA instead.
+        sudo add-apt-repository -y ppa:neovim-ppa/stable
+        sudo apt-get update
         sudo apt-get install -y neovim git ripgrep fd-find python3 python3-pip \
             nodejs npm luarocks build-essential unzip curl dotnet-sdk-8.0
         # Debian/Ubuntu ship fd as `fdfind`; expose it as `fd` for plugins that expect that name

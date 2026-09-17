@@ -147,21 +147,51 @@ return {
                 -- the old behaviour rather than relying on GODEBUG from the shell.
                 cmd_env = { GODEBUG = "x509negativeserial=1" },
                 before_init = function(params, config)
-                    local root = config.root_dir or params.rootPath
-                    if not root then
+                    local root = config.root_dir
+                    if root == nil or root == vim.NIL then
+                        root = params.rootPath
+                    end
+                    if root == nil or root == vim.NIL then
                         return
                     end
                     local file = root .. "/.sqls.json"
-                    if vim.fn.filereadable(file) ~= 1 then
+                    if vim.fn.filereadable(file) == 1 then
+                        local ok, conn = pcall(vim.json.decode, table.concat(vim.fn.readfile(file), "\n"))
+                        if not ok then
+                            vim.notify("sqls: bad .sqls.json: " .. tostring(conn), vim.log.levels.ERROR)
+                            return
+                        end
+                        params.initializationOptions =
+                            vim.tbl_extend("force", params.initializationOptions or {}, { connectionConfig = conn })
                         return
                     end
-                    local ok, conn = pcall(vim.json.decode, table.concat(vim.fn.readfile(file), "\n"))
-                    if not ok then
-                        vim.notify("sqls: bad .sqls.json: " .. tostring(conn), vim.log.levels.ERROR)
-                        return
+
+                    -- No project config: fall back to a `--pgsql`/`--tsql` marker
+                    -- comment on one of the first few lines of the buffer that
+                    -- started this client, instead of silently inheriting whatever
+                    -- driver happens to be default in ~/.config/sqls/config.yml.
+                    local dialect_drivers = {
+                        pgsql = "postgresql",
+                        postgres = "postgresql",
+                        postgresql = "postgresql",
+                        tsql = "mssql",
+                        mssql = "mssql",
+                        mysql = "mysql",
+                        sqlite = "sqlite3",
+                        sqlite3 = "sqlite3",
+                    }
+                    for _, line in ipairs(vim.api.nvim_buf_get_lines(0, 0, 5, false)) do
+                        local marker = line:match("^%s*%-%-%s*(%a+)%s*$")
+                        local driver = marker and dialect_drivers[marker:lower()]
+                        if driver then
+                            params.initializationOptions = vim.tbl_extend(
+                                "force",
+                                params.initializationOptions or {},
+                                { connectionConfig = { driver = driver } }
+                            )
+                            return
+                        end
                     end
-                    params.initializationOptions =
-                        vim.tbl_extend("force", params.initializationOptions or {}, { connectionConfig = conn })
                 end,
             })
 

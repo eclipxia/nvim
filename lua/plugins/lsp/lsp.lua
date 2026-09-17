@@ -25,7 +25,7 @@ return {
                 java = { "java-debug-adapter", "java-test", "checkstyle" },
                 cs = { "netcoredbg", "csharpier" },
             }
-            local tools = { "stylua", "prettierd", "sql-formatter" }
+            local tools = { "stylua", "prettierd", "sqlfluff" }
             for l, list in pairs(by_lang) do
                 if lang == nil or lang == l then
                     vim.list_extend(tools, list)
