@@ -43,7 +43,24 @@ elif [[ "$os" == "Linux" ]]; then
         PM="apt"
         sudo apt-get update
         sudo apt-get install -y git ripgrep fd-find python3 python3-pip \
-            nodejs npm luarocks build-essential unzip curl dotnet-sdk-8.0
+            nodejs npm luarocks build-essential unzip curl
+
+        # Ubuntu's dotnet-sdk-8.0 package name/availability varies by release
+        # (and isn't always in the default repos), so bundling it into the
+        # apt-get call above would fail the WHOLE install (including
+        # unrelated packages) whenever apt can't find it. Use Microsoft's
+        # official install script instead, which works the same on every
+        # Ubuntu release regardless of repo contents.
+        if ! command -v dotnet >/dev/null 2>&1; then
+            log "Installing .NET SDK via Microsoft's install script (needed by roslyn.nvim / csharp.lua)"
+            curl -fsSL https://dot.net/v1/dotnet-install.sh -o /tmp/dotnet-install.sh
+            bash /tmp/dotnet-install.sh --channel 8.0 --install-dir "$HOME/.dotnet"
+            rm -f /tmp/dotnet-install.sh
+            mkdir -p "$HOME/.local/bin"
+            ln -sf "$HOME/.dotnet/dotnet" "$HOME/.local/bin/dotnet"
+            warn "Symlinked ~/.dotnet/dotnet -> ~/.local/bin/dotnet. Make sure ~/.local/bin is on your PATH."
+        fi
+
         # Debian/Ubuntu ship fd as `fdfind`; expose it as `fd` for plugins that expect that name
         if command -v fdfind >/dev/null 2>&1 && ! command -v fd >/dev/null 2>&1; then
             mkdir -p "$HOME/.local/bin"
