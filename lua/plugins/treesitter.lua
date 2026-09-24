@@ -9,7 +9,7 @@ return{
 		-- and ensure_installed/auto_install from the old configs plugin don't exist
 		-- here, so parsers must be installed explicitly.
 		ts.install({
-			"c", "lua", "vim", "vimdoc", "python", "javascript", "typescript", "tsx",
+			"c", "cpp", "cmake", "make", "lua", "vim", "vimdoc", "python", "javascript", "typescript", "tsx",
 			"rust", "java", "c_sharp", "html", "css", "xml", "php", "sql",
 		})
 

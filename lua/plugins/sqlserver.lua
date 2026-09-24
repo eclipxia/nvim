@@ -7,6 +7,37 @@ return {
     cond = require("lang").only("sql"),
     ft = "sql",
     opts = {
-        keymap_prefix = "<leader>s",
+        keymap_prefix = "<C-s>",
+        lsp_settings = {
+            intelliSense = {
+                enableIntellisense = true,
+                enableSuggestions = true,
+                lowerCaseSuggestions = false,
+                enableErrorChecking = true,
+                enableQuickInfo = true,
+            },
+            query = {
+                batchSeparator = "GO",
+                displayBitAsNumber = true,
+                arithAbort = true,
+                concatNullYieldsNull = true,
+                ansiDefaults = false,
+                quotedIdentifier = true,
+                ansiNullDefaultOn = true,
+                ansiPadding = true,
+                ansiWarnings = true,
+                ansiNulls = true,
+                transactionIsolationLevel = "READ UNCOMMITTED",
+                deadlockPriority = "Normal",
+            },
+            format = {
+                useBracketForIdentifiers = false,
+                placeSelectStatementReferencesOnNewLine = true,
+                keywordCasing = "Uppercase",
+                datatypeCasing = "Uppercase",
+                alignColumnDefinitionsInColumns = true,
+            },
+            piiLogging = false,
+        },
     },
 }

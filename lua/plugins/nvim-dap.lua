@@ -1,7 +1,7 @@
 return {
   {
     "mfussenegger/nvim-dap",
-    cond = require("lang").any("python", "cs"),
+    cond = require("lang").any("python", "cs", "c"),
     dependencies = {
       "nvim-neotest/nvim-nio",
       "rcarriga/nvim-dap-ui",
@@ -72,6 +72,29 @@ return {
           end,
         },
       }
+
+      -- C/C++ (codelldb, installed via Mason)
+      dap.adapters.codelldb = {
+        type = "server",
+        port = "${port}",
+        executable = {
+          command = vim.fn.exepath("codelldb"),
+          args = { "--port", "${port}" },
+        },
+      }
+      dap.configurations.cpp = {
+        {
+          type = "codelldb",
+          name = "Launch executable",
+          request = "launch",
+          program = function()
+            return vim.fn.input("Path to executable: ", vim.fn.getcwd() .. "/build/", "file")
+          end,
+          cwd = "${workspaceFolder}",
+          stopOnEntry = false,
+        },
+      }
+      dap.configurations.c = dap.configurations.cpp
 
       require("dapui").setup({})
       require("nvim-dap-virtual-text").setup({ commented = true })

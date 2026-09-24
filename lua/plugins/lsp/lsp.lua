@@ -24,8 +24,9 @@ return {
                 python = { "flake8", "pylint", "black", "isort" },
                 java = { "java-debug-adapter", "java-test", "checkstyle" },
                 cs = { "netcoredbg", "csharpier" },
+                c = { "clang-format", "codelldb" },
             }
-            local tools = { "stylua", "prettierd", "sqlfluff" }
+            local tools = { "stylua", "prettierd", "sqlfluff", "eslint_d" }
             for l, list in pairs(by_lang) do
                 if lang == nil or lang == l then
                     vim.list_extend(tools, list)

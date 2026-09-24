@@ -15,11 +15,17 @@ return {
     opts = {
         formatters_by_ft = {
             lua = { "stylua" },
+            c = { "clang-format" },
+            cpp = { "clang-format" },
             python = { "isort", "black" },
             java = { "organize_java_imports", "lsp_format" },
             cs = { "csharpier" },
             sql = { "sqlfluff" },
             html = { "prettierd" },
+            javascript = { "prettierd" },
+            typescript = { "prettierd" },
+            javascriptreact = { "prettierd" },
+            typescriptreact = { "prettierd" },
             css = { "css_beautify" },
         },
         formatters = {
@@ -28,6 +34,15 @@ return {
             },
             black = {
                 prepend_args = { "--line-length", "110" },
+            },
+            prettierd = {
+                -- prettierd's CLI only accepts a single file path, not
+                -- prettier flags (any extra arg errors with "Only a single
+                -- file path is supported") -- PRETTIERD_DEFAULT_CONFIG is
+                -- its documented way to set defaults, used only when no
+                -- project .prettierrc is found. Matches the *.js/*.ts
+                -- shiftwidth=4 buffer setting in lua/autocmds.lua.
+                env = { PRETTIERD_DEFAULT_CONFIG = vim.fn.stdpath("config") .. "/.prettierrc.json" },
             },
             css_beautify = {
                 prepend_args = { "--no-selector-separator-newline" },

@@ -59,6 +59,26 @@ return {
                 end,
             })
 
+            -- Inlay hints shift text as you type over them, so hide them in
+            -- insert mode and restore on return to normal/visual.
+            vim.api.nvim_create_autocmd("InsertEnter", {
+                group = vim.api.nvim_create_augroup("UserInlayHintMode", {}),
+                callback = function(ev)
+                    vim.lsp.inlay_hint.enable(false, { bufnr = ev.buf })
+                end,
+            })
+            vim.api.nvim_create_autocmd("InsertLeave", {
+                group = vim.api.nvim_create_augroup("UserInlayHintMode", { clear = false }),
+                callback = function(ev)
+                    for _, client in ipairs(vim.lsp.get_clients({ bufnr = ev.buf })) do
+                        if client:supports_method("textDocument/inlayHint") then
+                            vim.lsp.inlay_hint.enable(true, { bufnr = ev.buf })
+                            break
+                        end
+                    end
+                end,
+            })
+
             -- mason-lspconfig v2 dropped `handlers`/`setup_handlers`: it now just
             -- installs servers and auto-enables the installed ones. Per-server
             -- tweaks go through vim.lsp.config(), and "*" is the default merged
@@ -195,6 +215,56 @@ return {
                 end,
             })
 
+            vim.lsp.config("clangd", {
+                cmd = {
+                    "clangd",
+                    "--background-index",
+                    "--clang-tidy",
+                    "--header-insertion=iwyu",
+                    "--completion-style=detailed",
+                    "--function-arg-placeholders",
+                    -- clangd defaults to utf-8; nvim and every other client
+                    -- here speak utf-16, and a mismatch makes nvim warn on
+                    -- every multi-client buffer.
+                    "--offset-encoding=utf-16",
+                },
+            })
+
+            vim.api.nvim_create_user_command("ClangdSwitchSourceHeader", function()
+                local client = vim.lsp.get_clients({ bufnr = 0, name = "clangd" })[1]
+                if not client then
+                    return vim.notify("clangd not attached", vim.log.levels.ERROR)
+                end
+                client:request(
+                    "textDocument/switchSourceHeader",
+                    vim.lsp.util.make_text_document_params(),
+                    function(err, res)
+                        if err or not res then
+                            return vim.notify("no matching source/header", vim.log.levels.WARN)
+                        end
+                        vim.cmd.edit(vim.uri_to_fname(res))
+                    end
+                )
+            end, { desc = "Switch between C/C++ source and header" })
+
+            -- ts_ls has inlay hints but ships them off by default; the
+            -- LspAttach handler above only enables the feature when the
+            -- client advertises support, which needs this turned on first.
+            local ts_inlay_hints = {
+                includeInlayParameterNameHints = "all",
+                includeInlayFunctionParameterTypeHints = true,
+                includeInlayVariableTypeHints = true,
+                includeInlayPropertyDeclarationTypeHints = true,
+                includeInlayFunctionLikeReturnTypeHints = true,
+                includeInlayEnumMemberValueHints = true,
+            }
+            vim.lsp.config("ts_ls", {
+                settings = {
+                    javascript = { inlayHints = ts_inlay_hints },
+                    typescript = { inlayHints = ts_inlay_hints },
+                },
+            })
+
             vim.lsp.config("graphql", {
                 filetypes = { "graphql", "gql", "svelte", "typescriptreact", "javascriptreact" },
             })
@@ -204,7 +274,7 @@ return {
             })
 
             require("mason-lspconfig").setup({
-                ensure_installed = { "lua_ls", "rust_analyzer", "pyright", "clangd", "sqls", "html", "cssls", "tailwindcss" },
+                ensure_installed = { "lua_ls", "rust_analyzer", "pyright", "clangd", "sqls", "html", "cssls", "tailwindcss", "ts_ls" },
             })
 
             -- Diagnostics
