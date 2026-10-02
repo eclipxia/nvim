@@ -1,3 +1,11 @@
+-- set while an auto-recovery (kill stale daemon + restart client) is in
+-- flight, so a server that keeps failing doesn't loop; see on_exit.
+local recovering = false
+
+-- client ids we've already announced, so the "attached to <sln>" message
+-- fires once per server and not once per C# buffer; cleared in on_exit.
+local announced = {}
+
 return {
 	"seblyng/roslyn.nvim",
 	-- ft = "cs": the plugin's own plugin/roslyn.lua calls
@@ -23,7 +31,23 @@ return {
 					csharp_enable_inlay_hints_for_other_parameters = true,
 				},
 			},
-			on_attach = function(_, bufnr)
+			on_attach = function(client, bufnr)
+				recovering = false
+
+				if not announced[client.id] then
+					announced[client.id] = true
+					-- store holds the .sln/.slnx roslyn.nvim picked in solution
+					-- mode; it's empty in project (.csproj) mode, where root_dir
+					-- is the project directory.
+					local sln = require("roslyn.store").get(client.id)
+					vim.notify(
+						sln and ("Attached -- solution " .. vim.fs.basename(sln))
+							or ("Attached -- project " .. vim.fs.basename(client.config.root_dir or "?")),
+						vim.log.levels.INFO,
+						{ title = "roslyn.nvim" }
+					)
+				end
+
 				-- On "(" for an empty call, insert the declared parameter
 				-- names as a snippet (like jdtls does for Java). On ",",
 				-- just show the signature float for the next parameter.
@@ -98,68 +122,65 @@ return {
 					end,
 				})
 			end,
-			on_exit = function(code, signal, _)
+			on_exit = function(code, signal, client_id)
+				announced[client_id] = nil
+
 				-- code=1/signal=0 is roslyn-language-server's signature for
 				-- "couldn't attach to the shared workspace daemon" -- almost
 				-- always another Neovim session already holding this same
 				-- project's Roslyn workspace, not a config problem.
+				--
+				-- There is exactly ONE Microsoft.CodeAnalysis.LanguageServer
+				-- --daemon process per machine, shared by every C# project you
+				-- have open -- not per-project -- so killing it also drops Roslyn
+				-- for any other session attached to it. They recover the same way
+				-- this session is about to: the next attach spawns a fresh daemon.
+				--
+				-- recovering guards against a kill/restart loop when the real
+				-- cause isn't a stale daemon; on_attach clears it, so a genuine
+				-- duplicate later in the session still gets one auto-recovery.
 				if code ~= 1 or signal ~= 0 then
 					return
 				end
-
-				-- There is exactly ONE Microsoft.CodeAnalysis.LanguageServer
-				-- --daemon process per machine, shared by every C# project you
-				-- have open -- not per-project. Killing it recovers this
-				-- session but also drops Roslyn for any other project/session
-				-- currently attached to it, so always ask first.
-				if vim.fn.has("win32") == 1 then
-					vim.notify(
-						"Roslyn server exited immediately (code 1, signal 0), usually because "
-							.. "another Neovim session already has this project open in Roslyn. "
-							.. "Close duplicate sessions and reopen this file.",
-						vim.log.levels.WARN,
-						{ title = "roslyn.nvim" }
-					)
+				if recovering then
+					vim.schedule(function()
+						vim.notify(
+							"Roslyn server still exits immediately (code 1, signal 0) after "
+								.. "killing the shared daemon. Check :LspLog.",
+							vim.log.levels.WARN,
+							{ title = "roslyn.nvim" }
+						)
+					end)
 					return
 				end
+				recovering = true
 
-				vim.schedule(function()
-					local choice = vim.fn.confirm(
-						"Roslyn server exited immediately (code 1, signal 0) -- likely another "
-							.. "Neovim session already holds this project's Roslyn workspace.\n\n"
-							.. "Kill the shared roslyn daemon to recover? This also drops Roslyn "
-							.. "for any OTHER C# project/session currently using it.",
-						"&Kill it\n&Leave it",
-						2
-					)
-					if choice ~= 1 then
-						return
-					end
+				local kill = vim.fn.has("win32") == 1
+						and { "taskkill", "/F", "/IM", "Microsoft.CodeAnalysis.LanguageServer.exe" }
+					or { "pkill", "-f", "CodeAnalysis.LanguageServer.*--daemon" }
 
-					vim.system(
-						{ "pgrep", "-f", "CodeAnalysis.LanguageServer.*--daemon" },
-						{ text = true },
-						function(res)
-							vim.schedule(function()
-								local pids = {}
-								for pid in (res.stdout or ""):gmatch("%d+") do
-									table.insert(pids, pid)
-								end
-								if #pids == 0 then
-									vim.notify("No roslyn daemon process found to kill.", vim.log.levels.WARN, { title = "roslyn.nvim" })
-									return
-								end
-								for _, pid in ipairs(pids) do
-									vim.system({ "kill", pid })
-								end
-								vim.notify(
-									"Killed roslyn daemon (pid " .. table.concat(pids, ", ") .. "). Reopen the file for a fresh client.",
-									vim.log.levels.WARN,
-									{ title = "roslyn.nvim" }
-								)
-							end)
+				vim.system(kill, {}, function()
+					-- pkill returns once the signal is sent, not once the daemon is
+					-- gone; give it a moment to exit and release the workspace
+					-- before a new client tries to claim it. Bump if it still races.
+					vim.defer_fn(function()
+						-- Re-fire the FileType autocmd nvim.lsp.enable installed,
+						-- which is what starts/attaches the client. A second
+						-- vim.lsp.enable("roslyn") does NOT do it: it only
+						-- doautoall's, which skips these buffers (verified).
+						-- The first buffer starts the client; the rest resolve to
+						-- the same root_dir and just attach to it.
+						for _, buf in ipairs(vim.api.nvim_list_bufs()) do
+							local ft = vim.bo[buf].filetype
+							if ft == "cs" or ft == "razor" then
+								vim.api.nvim_exec_autocmds("FileType", {
+									buffer = buf,
+									group = "nvim.lsp.enable",
+									modeline = false,
+								})
+							end
 						end
-					)
+					end, 500)
 				end)
 			end,
 		})

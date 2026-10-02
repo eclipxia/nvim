@@ -37,6 +37,18 @@ local autocommands = {
 	},
 
 	{
+		-- neogen emits one literal tab per indent column when noexpandtab, so
+		-- docstrings land 4 tabs deep in space-indented files
+		"BufEnter",
+		{
+			pattern = { "*.cs", "*.csx", "*.py", "*.js", "*.jsx", "*.ts", "*.tsx" },
+			callback = function()
+				vim.opt_local.expandtab = true
+			end,
+		},
+	},
+
+	{
 		"BufWinEnter",
 		{
 			pattern = { "*.md", "*.txt", "*.tex" },

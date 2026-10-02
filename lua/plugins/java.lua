@@ -38,9 +38,16 @@ return {
           'build.gradle', 'build.gradle.kts',
           'pom.xml', 'mvnw', '.git',
         }),
+        -- jdtls.start_or_attach() bypasses vim.lsp.config("*", ...), so it
+        -- never inherits blink's capabilities merge -- set them explicitly
+        -- or jdtls never learns the client can expand snippet completions.
+        capabilities = require('blink.cmp').get_lsp_capabilities(),
         settings = {
           java = {
             signatureHelp = { enabled = true },
+            -- jdtls' equivalent of clangd's --function-arg-placeholders:
+            -- without it, method completions never carry argument snippets.
+            completion = { guessMethodArguments = true },
             inlayHints = {
               parameterNames = { enabled = 'all' },
             },

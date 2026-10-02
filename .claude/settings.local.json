@@ -14,7 +14,9 @@
       "Bash(git add *)",
       "Bash(git commit -m ' *)",
       "Bash(nvim --headless -c \"lua vim.schedule\\(function\\(\\) local ok, err = pcall\\(function\\(\\) require\\('lazy'\\).setup end\\) end\\)\" -c \"redir! > /tmp/nvim_msgs.txt\" -c \"silent messages\" -c \"redir END\" -c \"qa\")",
-      "Read(//tmp/**)"
+      "Read(//tmp/**)",
+      "Read(//Users/eclipxia/.local/share/nvim/mason/**)",
+      "Read(//Users/eclipxia/.local/share/nvim/mason/packages/typescript-language-server/**)"
     ]
   }
 }

@@ -10,7 +10,7 @@ return{
 		-- here, so parsers must be installed explicitly.
 		ts.install({
 			"c", "cpp", "cmake", "make", "lua", "vim", "vimdoc", "python", "javascript", "typescript", "tsx",
-			"rust", "java", "c_sharp", "html", "css", "xml", "php", "sql",
+			"rust", "java", "c_sharp", "html", "css", "xml", "php", "sql", "latex",
 		})
 
 		-- Enable features for all filetypes except sql: tree-sitter-sql is

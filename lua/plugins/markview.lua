@@ -7,8 +7,9 @@ return {
     local presets = require("markview.presets")
     require("markview").setup({
       preview = {
+        enable = false,                -- no auto-render; toggle with <leader>mp
         -- markview renders these filetypes by default; extend as you like
-        filetypes = { "md", "rmd", "quarto" },
+        filetypes = { "markdown", "rmd", "quarto" },
         modes = { "n", "no", "c" },
         hybrid_modes = { "i" },        -- insert-mode hybrid editing
         icon_provider = "internal",    -- or "mini" / "devicons"
