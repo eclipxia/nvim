@@ -261,7 +261,8 @@ return {
 			local ts_inlay_hints = {
 				parameterNames = { enabled = "all" },
 				parameterTypes = { enabled = true },
-				variableTypes = { enabled = true },
+				-- default hides `date: Date` when the name matches the type
+				variableTypes = { enabled = true, suppressWhenTypeMatchesName = false },
 				propertyDeclarationTypes = { enabled = true },
 				functionLikeReturnTypes = { enabled = true },
 				enumMemberValues = { enabled = true },

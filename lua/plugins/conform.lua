@@ -26,7 +26,8 @@ return {
 			typescript = { "prettierd" },
 			javascriptreact = { "prettierd" },
 			typescriptreact = { "prettierd" },
-			css = { "css_beautify" },
+			css = { "prettierd" },
+			xml = { "xmlformatter" },
 		},
 		formatters = {
 			stylua = {
@@ -43,9 +44,6 @@ return {
 				-- project .prettierrc is found. Matches the *.js/*.ts
 				-- shiftwidth=4 buffer setting in lua/autocmds.lua.
 				env = { PRETTIERD_DEFAULT_CONFIG = vim.fn.stdpath("config") .. "/.prettierrc.json" },
-			},
-			css_beautify = {
-				prepend_args = { "--no-selector-separator-newline" },
 			},
 			sqlfluff = {
 				-- sqlfluff exits 1 (not 0) whenever it leaves behind a violation

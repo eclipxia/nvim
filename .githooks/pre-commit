@@ -1,0 +1,21 @@
+#!/bin/sh
+# Format (and lint JS/TS) staged files; re-stage the formatted result.
+# Tools come from PATH or mason.
+export PATH="$HOME/.local/share/nvim/mason/bin:$PATH"
+cd "$(git rev-parse --show-toplevel)" || exit 1
+
+# ponytail: formats whole staged files, so partially staged (git add -p) files get fully staged.
+staged() { git diff --cached --name-only --diff-filter=ACM -- "$@"; }
+
+lua=$(staged '*.lua')
+if [ -n "$lua" ]; then
+	echo "$lua" | xargs stylua --column-width 110 || exit 1
+	echo "$lua" | xargs git add
+fi
+
+js=$(staged '*.js' '*.jsx' '*.ts' '*.tsx')
+if [ -n "$js" ]; then
+	echo "$js" | xargs prettierd --write 2>/dev/null || echo "$js" | xargs npx prettier --write || exit 1
+	echo "$js" | xargs eslint_d --fix || exit 1
+	echo "$js" | xargs git add
+fi

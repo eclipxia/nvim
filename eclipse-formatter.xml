@@ -1,6 +1,6 @@
-<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <profiles version="24">
-<profile kind="CodeFormatterProfile" name="120col">
-<setting id="org.eclipse.jdt.core.formatter.lineSplit" value="120"/>
-</profile>
+  <profile kind="CodeFormatterProfile" name="120col">
+    <setting id="org.eclipse.jdt.core.formatter.lineSplit" value="120"></setting>
+  </profile>
 </profiles>
