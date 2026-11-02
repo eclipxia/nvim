@@ -1,106 +1,132 @@
 return {
-  {
-    'mfussenegger/nvim-jdtls',
-    ft = 'java',
-    cond = require('lang').any('java'),
-    dependencies = {
-      'mfussenegger/nvim-dap',
-    },
-    config = function()
-      local home = os.getenv('HOME')
-      local project_name = vim.fn.fnamemodify(vim.fn.getcwd(), ':p:h:t')
-      local workspace_dir = home .. '/.cache/jdtls-workspace/' .. project_name
+	{
+		"mfussenegger/nvim-jdtls",
+		ft = "java",
+		cond = require("lang").any("java"),
+		dependencies = {
+			"mfussenegger/nvim-dap",
+		},
+		config = function()
+			local home = os.getenv("HOME")
+			local project_name = vim.fn.fnamemodify(vim.fn.getcwd(), ":p:h:t")
+			local workspace_dir = home .. "/.cache/jdtls-workspace/" .. project_name
 
-      -- DAP/test support comes from Mason-installed bundles, kept separate
-      -- from the manually-installed jdtls binary on PATH.
-      local mason_packages = vim.fn.stdpath('data') .. '/mason/packages'
-      local bundles = {}
-      local debug_adapter = vim.fn.glob(
-        mason_packages .. '/java-debug-adapter/extension/server/com.microsoft.java.debug.plugin-*.jar'
-      )
-      if debug_adapter ~= '' then
-        table.insert(bundles, debug_adapter)
-      end
-      vim.list_extend(
-        bundles,
-        vim.split(vim.fn.glob(mason_packages .. '/java-test/extension/server/*.jar'), '\n')
-      )
+			-- DAP/test support comes from Mason-installed bundles, kept separate
+			-- from the manually-installed jdtls binary on PATH.
+			local mason_packages = vim.fn.stdpath("data") .. "/mason/packages"
+			local bundles = {}
+			local debug_adapter = vim.fn.glob(
+				mason_packages .. "/java-debug-adapter/extension/server/com.microsoft.java.debug.plugin-*.jar"
+			)
+			if debug_adapter ~= "" then
+				table.insert(bundles, debug_adapter)
+			end
+			vim.list_extend(
+				bundles,
+				vim.split(vim.fn.glob(mason_packages .. "/java-test/extension/server/*.jar"), "\n")
+			)
 
-      local config = {
-        cmd = {
-          'jdtls',
-          '-data', workspace_dir,
-          '--jvm-arg=-Xmx4G',
-          '--jvm-arg=-XX:+UseG1GC',
-        },
-        root_dir = vim.fs.root(0, {
-          'settings.gradle', 'settings.gradle.kts',
-          'build.gradle', 'build.gradle.kts',
-          'pom.xml', 'mvnw', '.git',
-        }),
-        -- jdtls.start_or_attach() bypasses vim.lsp.config("*", ...), so it
-        -- never inherits blink's capabilities merge -- set them explicitly
-        -- or jdtls never learns the client can expand snippet completions.
-        capabilities = require('blink.cmp').get_lsp_capabilities(),
-        settings = {
-          java = {
-            signatureHelp = { enabled = true },
-            -- jdtls' equivalent of clangd's --function-arg-placeholders:
-            -- without it, method completions never carry argument snippets.
-            completion = { guessMethodArguments = true },
-            inlayHints = {
-              parameterNames = { enabled = 'all' },
-            },
-            format = {
-              settings = {
-                url = home .. '/.config/nvim/eclipse-formatter.xml',
-                profile = '80col',
-              },
-            },
-            import = {
-              gradle = {
-                enabled = true,
-                wrapper = { enabled = true },
-              },
-            },
-            configuration = {
-              runtimes = {
-                { name = 'JavaSE-17', path = home .. '/.sdkman/candidates/java/17.0.19-tem' },
-                { name = 'JavaSE-21', path = home .. '/.sdkman/candidates/java/current', default = true },
-                { name = 'JavaSE-25', path = home .. '/.sdkman/candidates/java/25.0.3-tem' },
-              },
-            },
-          },
-        },
-        init_options = {
-          bundles = bundles,
-        },
-        on_attach = function(client, bufnr)
-          local jdtls = require('jdtls')
-          local set = function(mode, keys, cmd, desc)
-            vim.keymap.set(mode, keys, cmd, { buffer = bufnr, desc = desc })
-          end
-          set('n', 'K', vim.lsp.buf.hover, 'Show documentation')
-          set('n', 'gd', vim.lsp.buf.definition, 'Go to definition')
-          set('n', '<leader>ca', vim.lsp.buf.code_action, 'See available code actions')
-          set('n', '<leader>rn', vim.lsp.buf.rename, 'Smart rename')
-          set('i', '<C-k>', vim.lsp.buf.signature_help, 'Show signature help')
-          set('n', '<leader>oi', jdtls.organize_imports, 'Organize imports')
-          set('n', '<leader>tc', jdtls.test_class, 'Test class')
-          set('n', '<leader>tm', jdtls.test_nearest_method, 'Test nearest method')
-          vim.lsp.inlay_hint.enable(true, { bufnr = bufnr })
+			local config = {
+				cmd = {
+					"jdtls",
+					"-data",
+					workspace_dir,
+					"--jvm-arg=-Xmx4G",
+					"--jvm-arg=-XX:+UseG1GC",
+				},
+				root_dir = vim.fs.root(0, {
+					"settings.gradle",
+					"settings.gradle.kts",
+					"build.gradle",
+					"build.gradle.kts",
+					"pom.xml",
+					"mvnw",
+					".git",
+				}),
+				-- jdtls.start_or_attach() bypasses vim.lsp.config("*", ...), so it
+				-- never inherits blink's capabilities merge -- set them explicitly
+				-- or jdtls never learns the client can expand snippet completions.
+				capabilities = require("blink.cmp").get_lsp_capabilities(),
+				settings = {
+					java = {
+						signatureHelp = { enabled = true },
+						-- jdtls' equivalent of clangd's --function-arg-placeholders:
+						-- without it, method completions never carry argument snippets.
+						completion = { guessMethodArguments = true },
+						inlayHints = {
+							parameterNames = { enabled = "all" },
+						},
+						format = {
+							settings = {
+								url = home .. "/.config/nvim/eclipse-formatter.xml",
+								profile = "80col",
+							},
+						},
+						import = {
+							gradle = {
+								enabled = true,
+								wrapper = { enabled = true },
+							},
+						},
+						imports = {
+							gradle = {
+								wrapper = {
+									checksums = {
+										{
+											sha256 = "3b8a25775a69158b5ad2b1d17a80a88dc7b40a352a73eb27d06c612a7ce68e98",
+											allowed = true,
+										},
+									},
+								},
+							},
+						},
+						configuration = {
+							runtimes = {
+								{ name = "JavaSE-17", path = home .. "/.sdkman/candidates/java/17.0.19-tem" },
+								{
+									name = "JavaSE-21",
+									path = home .. "/.sdkman/candidates/java/current",
+									default = true,
+								},
+								{ name = "JavaSE-25", path = home .. "/.sdkman/candidates/java/25.0.3-tem" },
+							},
+						},
+					},
+				},
+				init_options = {
+					bundles = bundles,
+				},
+				on_attach = function(client, bufnr)
+					local jdtls = require("jdtls")
+					local set = function(mode, keys, cmd, desc)
+						vim.keymap.set(mode, keys, cmd, { buffer = bufnr, desc = desc })
+					end
+					set("n", "K", vim.lsp.buf.hover, "Show documentation")
+					set("n", "gd", vim.lsp.buf.definition, "Go to definition")
+					set("n", "<leader>ca", vim.lsp.buf.code_action, "See available code actions")
+					set("n", "<leader>rn", vim.lsp.buf.rename, "Smart rename")
+					set("i", "<C-k>", vim.lsp.buf.signature_help, "Show signature help")
+					set("n", "<leader>oi", jdtls.organize_imports, "Organize imports")
+					set("n", "<leader>tc", jdtls.test_class, "Test class")
+					set("n", "<leader>tm", jdtls.test_nearest_method, "Test nearest method")
+					vim.lsp.inlay_hint.enable(true, { bufnr = bufnr })
 
-          jdtls.setup_dap({ hotcodereplace = 'auto' })
-          require('jdtls.dap').setup_dap_main_class_configs()
-        end,
-      }
+					jdtls.setup_dap({ hotcodereplace = "auto" })
+					require("jdtls.dap").setup_dap_main_class_configs()
+				end,
+			}
 
-      vim.api.nvim_create_autocmd('BufEnter', {
-        pattern = '*.java',
-        callback = function()
-          require('jdtls').start_or_attach(config)
-        end,
-      })
-    end,
-  },
+			-- Gradle import runs during initialize, before didChangeConfiguration
+			-- delivers `settings`; pass them at init too so the wrapper checksum
+			-- allowlist is already known when the import starts.
+			config.init_options.settings = config.settings
+
+			vim.api.nvim_create_autocmd("BufEnter", {
+				pattern = "*.java",
+				callback = function()
+					require("jdtls").start_or_attach(config)
+				end,
+			})
+		end,
+	},
 }

@@ -73,20 +73,4 @@ log("Installing Mason-managed LSP servers/linters/formatters")
 if run(["nvim", "--headless", "+MasonToolsInstall", "+qa"], check=False).returncode != 0:
     warn("MasonToolsInstall command not available yet, open nvim once manually to finish installs.")
 
-# ---------------------------------------------------------------------------
-# 4. Build telescope-fzf-native if lazy.nvim's own build step didn't run it
-# ---------------------------------------------------------------------------
-fzf_src = Path(os.environ["LOCALAPPDATA"]) / "nvim-data" / "lazy" / "telescope-fzf-native.nvim"
-if (fzf_src / "src" / "fzf.c").exists() and not (fzf_src / "build" / "libfzf.dll").exists():
-    log("Building telescope-fzf-native with zig cc")
-    build_dir = fzf_src / "build"
-    build_dir.mkdir(parents=True, exist_ok=True)
-    subprocess.run(
-        ["zig", "cc", "-O3", "-Wall", "-Werror", "-fpic", "-std=gnu99", "-shared",
-         "src/fzf.c", "-o", "build/libfzf.dll"],
-        cwd=fzf_src, check=True,
-    )
-else:
-    log("telescope-fzf-native already built (or handled by lazy.nvim's build step)")
-
 log("Done. Open nvim once interactively to let any remaining Mason installs finish.")

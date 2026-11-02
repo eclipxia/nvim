@@ -9,7 +9,7 @@ return {
 				sort_by = "case_sensitive",
 				view = {
 					width = 30,
-					side = "left",
+					side = "right",
 					number = false,
 					relativenumber = false,
 				},

@@ -32,18 +32,28 @@ return {
 					local client = vim.lsp.get_client_by_id(ev.data.client_id)
 					local is_jdtls = client and client.name == "jdtls"
 
-					set("n", "gR", "<cmd>Telescope lsp_references<CR>", "Show LSP references")
+					set("n", "gR", function()
+						Snacks.picker.lsp_references()
+					end, "Show LSP references")
 					set("n", "gD", vim.lsp.buf.declaration, "Go to declaration")
 					if not is_jdtls then
-						set("n", "gd", "<cmd>Telescope lsp_definitions<CR>", "Show LSP definitions")
+						set("n", "gd", function()
+							Snacks.picker.lsp_definitions()
+						end, "Show LSP definitions")
 					end
-					set("n", "gi", "<cmd>Telescope lsp_implementations<CR>", "Show LSP implementations")
-					set("n", "gt", "<cmd>Telescope lsp_type_definitions<CR>", "Show LSP type definitions")
+					set("n", "gi", function()
+						Snacks.picker.lsp_implementations()
+					end, "Show LSP implementations")
+					set("n", "gt", function()
+						Snacks.picker.lsp_type_definitions()
+					end, "Show LSP type definitions")
 					if not is_jdtls then
 						set({ "n", "v" }, "<leader>ca", vim.lsp.buf.code_action, "See available code actions")
 						set("n", "<leader>rn", vim.lsp.buf.rename, "Smart rename")
 					end
-					set("n", "<leader>D", "<cmd>Telescope diagnostics bufnr=0<CR>", "Show buffer diagnostics")
+					set("n", "<leader>D", function()
+						Snacks.picker.diagnostics_buffer()
+					end, "Show buffer diagnostics")
 					set("n", "<leader>d", vim.diagnostic.open_float, "Show line diagnostics")
 					set("n", "[d", function()
 						vim.diagnostic.jump({ count = -1, float = true })
