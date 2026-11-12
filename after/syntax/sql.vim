@@ -11,7 +11,10 @@ syn keyword sqlStatement close cursor declare use waitfor writetext readtext
 syn keyword sqlStatement updatetext dump load try_convert
 
 syn keyword sqlKeyword authorization break browse clustered coalesce
-syn keyword sqlKeyword collate compute constraint contained
+syn keyword sqlKeyword collate compute constraint
+" `contained` is also a syn option name, so as the last word of a keyword list it
+" would silently make the whole line contained-only; match it separately.
+syn match sqlKeyword "\<contained\>"
 syn keyword sqlKeyword continue database distributed double dbcc errlvl
 syn keyword sqlKeyword external fillfactor foreign freetext freetexttable
 syn keyword sqlKeyword holdlock identity identity_insert identitycol nocheck
@@ -76,3 +79,9 @@ syn match sqlSpecial "@\w\+"
 syn match sqlIdentifier "\[[^][]*\]"
 hi def link sqlSpecial Identifier
 hi def link sqlIdentifier Identifier
+
+" Constraint / DCL / trigger words that neither the Oracle base file nor the
+" lists above cover (PRIMARY KEY, REFERENCES, CREATE LOGIN, AFTER INSERT...).
+syn keyword sqlKeyword primary key references login role password member
+syn keyword sqlKeyword enable disable after instead of for
+syn keyword sqlStatement insert
