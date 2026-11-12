@@ -15,5 +15,13 @@
   "endOfLine": "lf",
   "embeddedLanguageFormatting": "auto",
   "singleAttributePerLine": false,
-  "objectWrap": "preserve"
+  "objectWrap": "preserve",
+  "overrides": [
+    {
+      "files": "*.html",
+      "options": {
+        "tabWidth": 2
+      }
+    }
+  ]
 }

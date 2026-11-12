@@ -115,7 +115,7 @@ else
 fi
 
 # lua/plugins/java.lua points jdtls at JDKs under ~/.sdkman/candidates/java,
-# and jdtls itself isn't Mason-managed, so install both via SDKMAN.
+# so install the JDKs via SDKMAN. jdtls itself is Mason-managed (see lsp.lua).
 if [[ ! -d "$HOME/.sdkman" ]]; then
     log "Installing SDKMAN (needed for jdtls + JDKs used by java.lua)"
     curl -s "https://get.sdkman.io" | bash
@@ -123,7 +123,6 @@ fi
 # shellcheck disable=SC1090
 source "$HOME/.sdkman/bin/sdkman-init.sh"
 sdk install java 21-tem || true
-sdk install jdtls || true
 warn "java.lua also references JavaSE-17/25 SDKMAN candidates; install those with 'sdk install java 17-tem' / '25-tem' if you need them."
 
 # ---------------------------------------------------------------------------

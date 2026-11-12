@@ -86,8 +86,13 @@ return {
 			sources = {
 				default = { "lsp", "snippets", "buffer", "path" },
 				-- LaTeX symbol completion, only active inside $...$ / $$...$$ in markdown
-				per_filetype = { markdown = { "latex", "lsp", "snippets", "buffer", "path" } },
+				per_filetype = {
+					markdown = { "latex", "lsp", "snippets", "buffer", "path" },
+					-- .class / #id names pulled from the project's HTML files
+					css = { "html_classes", "lsp", "snippets", "buffer", "path" },
+				},
 				providers = {
+					html_classes = { name = "HTML", module = "html-class-source" },
 					latex = { name = "Latex", module = "blink-cmp-latex", opts = { insert_command = false } },
 				},
 			},

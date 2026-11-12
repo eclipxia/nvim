@@ -26,6 +26,12 @@ return {
 				vim.split(vim.fn.glob(mason_packages .. "/java-test/extension/server/*.jar"), "\n")
 			)
 
+			-- Resolve installed SDKMAN JDKs by major version so point releases don't break the paths.
+			local function sdk_jdk(major)
+				local dirs = vim.fn.glob(home .. "/.sdkman/candidates/java/" .. major .. ".*", false, true)
+				return dirs[#dirs]
+			end
+
 			local config = {
 				cmd = {
 					"jdtls",
@@ -82,13 +88,9 @@ return {
 						},
 						configuration = {
 							runtimes = {
-								{ name = "JavaSE-17", path = home .. "/.sdkman/candidates/java/17.0.19-tem" },
-								{
-									name = "JavaSE-21",
-									path = home .. "/.sdkman/candidates/java/current",
-									default = true,
-								},
-								{ name = "JavaSE-25", path = home .. "/.sdkman/candidates/java/25.0.3-tem" },
+								{ name = "JavaSE-17", path = sdk_jdk("17") },
+								{ name = "JavaSE-21", path = sdk_jdk("21"), default = true },
+								{ name = "JavaSE-25", path = sdk_jdk("25") },
 							},
 						},
 					},

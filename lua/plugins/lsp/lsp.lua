@@ -22,7 +22,7 @@ return {
             local lang = require("lang").active
             local by_lang = {
                 python = { "flake8", "pylint", "black", "isort" },
-                java = { "java-debug-adapter", "java-test", "checkstyle" },
+                java = { "jdtls", "java-debug-adapter", "java-test", "checkstyle" },
                 cs = { "netcoredbg", "csharpier" },
                 c = { "clang-format", "codelldb" },
             }

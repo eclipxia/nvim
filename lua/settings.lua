@@ -5,6 +5,26 @@ vim.opt.swapfile = false
 vim.opt.textwidth = 110          -- was re-set to this on every BufEnter; set once
 vim.opt.colorcolumn = "110"
 
+-- Make "* talk to the real system clipboard (what Ctrl+V pastes) instead of
+-- Wayland's primary selection. 'clipboard' stays unset, so plain y/d/p only
+-- touch nvim's own registers.
+-- Linux/Wayland only: macOS (pbcopy/pbpaste) already maps * and + to the
+-- system clipboard, so nvim's built-in provider is used there.
+if vim.fn.has("linux") == 1 and vim.env.WAYLAND_DISPLAY then
+    vim.g.clipboard = {
+        name = "wl-clipboard-star-is-clipboard",
+        copy = {
+            ["+"] = { "wl-copy", "--type", "text/plain" },
+            ["*"] = { "wl-copy", "--type", "text/plain" },
+        },
+        paste = {
+            ["+"] = { "wl-paste", "--no-newline" },
+            ["*"] = { "wl-paste", "--no-newline" },
+        },
+        cache_enabled = 0,
+    }
+end
+
 -- Diagnostic noise gate, TypeScript buffers only: "you declared this and
 -- haven't used it yet", a casing rule, a line-length rule, a complexity
 -- threshold -- none of it is a defect. Every other language keeps its
