@@ -173,7 +173,26 @@ return {
 			-- hand it over as connectionConfig. JSON rather than sqls' own YAML
 			-- so vim.json.decode can read it with no extra dependency.
 			vim.lsp.config("sqls", {
-				root_markers = { ".sqls.json", "config.yml", ".git" },
+				-- Don't even start sqls on T-SQL buffers (GO batches, DECLARE @x,
+				-- `-- tsql` marker): its mssql driver is broken and it has no
+				-- connection there anyway. Skipping on_dir() prevents the start.
+				root_dir = function(bufnr, on_dir)
+					for _, line in ipairs(vim.api.nvim_buf_get_lines(bufnr, 0, -1, false)) do
+						local l = line:lower()
+						if
+							l:match("^%s*go%s*$")
+							or l:match("^%s*declare%s+@")
+							or l:match("^%s*%-%-%s*t?sql%s*$")
+							or l:match("^%s*%-%-%s*mssql%s*$")
+						then
+							return
+						end
+					end
+					local root = vim.fs.root(bufnr, { ".sqls.json", "config.yml", ".git" })
+					if root then
+						on_dir(root)
+					end
+				end,
 				-- Go 1.23+ rejects certs with a negative serial number, which is
 				-- exactly what azure-sql-edge self-signs on first boot, so every
 				-- connection dies in the TLS handshake. Opt this process back into
