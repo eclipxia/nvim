@@ -20,7 +20,7 @@ return {
 			python = { "isort", "black" },
 			java = { "organize_java_imports", "lsp_format" },
 			cs = { "lsp_format" },
-			sql = { "sqlfluff", "align_sql_columns", "align_sql_values" },
+			sql = { "sqlfluff", "align_sql_columns", "align_sql_values", "sql_layout" },
 			html = { "prettierd" },
 			javascript = { "prettierd" },
 			typescript = { "prettierd" },
@@ -51,6 +51,13 @@ return {
 				-- the fixes it *did* make are still valid on stdout, so accept
 				-- exit 1 too or conform discards the output and no-ops on save.
 				exit_codes = { 0, 1 },
+			},
+			sql_layout = {
+				-- View body indented under AS, SELECT aliases and JOIN lines aligned
+				-- (lua/sql_layout.lua). Runs last so sqlfluff can't collapse the spacing.
+				format = function(_, _, lines, callback)
+					callback(nil, require("sql_layout")(lines))
+				end,
 			},
 			align_sql_values = {
 				-- INSERT ... VALUES, DECLARE, procedure parameters and SET @var aligned in columns
@@ -263,16 +270,13 @@ return {
 										ty, rest = tail:match("^([%w_]+)%s*(.*)$")
 									end
 									if ty then
-										table.insert(
-											block,
-											{
-												idx = #out,
-												indent = indent,
-												name = name,
-												type = ty,
-												rest = rest,
-											}
-										)
+										table.insert(block, {
+											idx = #out,
+											indent = indent,
+											name = name,
+											type = ty,
+											rest = rest,
+										})
 									end
 								end
 							end
