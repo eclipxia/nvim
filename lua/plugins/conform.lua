@@ -31,10 +31,10 @@ return {
 		},
 		formatters = {
 			stylua = {
-				prepend_args = { "--column-width", "110" },
+				prepend_args = { "--column-width", "80" },
 			},
 			black = {
-				prepend_args = { "--line-length", "110" },
+				prepend_args = { "--line-length", "80" },
 			},
 			prettierd = {
 				-- prettierd's CLI only accepts a single file path, not

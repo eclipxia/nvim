@@ -1,7 +1,7 @@
 return {
   {
     "mfussenegger/nvim-dap",
-    cond = require("lang").any("python", "cs", "c"),
+    cond = require("lang").any("python", "cs", "c", "java"),
     dependencies = {
       "nvim-neotest/nvim-nio",
       "rcarriga/nvim-dap-ui",

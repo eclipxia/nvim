@@ -62,3 +62,14 @@ vim.keymap.set("t", "<C-l>", "<C-\\><C-n><C-w>l", { desc = "Move to right split 
 -- needed). remap = true because gcc/gc are themselves mappings.
 vim.keymap.set("n", "<leader>/", "gcc", { remap = true, desc = "Toggle comment line" })
 vim.keymap.set("x", "<leader>/", "gc", { remap = true, desc = "Toggle comment block" })
+
+-- New file / directory for Java and C# (see lua/new_file.lua, which picks the
+-- language from the buffer or project): <leader>nf = type, <leader>nd = package/folder.
+if require("lang").any("java", "cs")() then
+	vim.keymap.set("n", "<leader>nf", function()
+		require("new_file").new_file()
+	end, { desc = "New Java/C# type" })
+	vim.keymap.set("n", "<leader>nd", function()
+		require("new_file").new_dir()
+	end, { desc = "New Java package / C# folder" })
+end
