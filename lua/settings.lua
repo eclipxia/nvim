@@ -2,16 +2,8 @@ vim.opt.number = true -- show absolute line number on the current line
 vim.opt.relativenumber = true -- show relative line numbers on other lines
 vim.opt.virtualedit = "block" -- allow virtual cursor only in visual-block mode, not normal mode
 vim.opt.swapfile = false
-<<<<<<< Updated upstream
-vim.opt.textwidth = 110 -- was re-set to this on every BufEnter; set once
-vim.opt.colorcolumn = "110"
-||||||| Stash base
-vim.opt.textwidth = 110          -- was re-set to this on every BufEnter; set once
-vim.opt.colorcolumn = "110"
-=======
 vim.opt.textwidth = 80
 vim.opt.colorcolumn = "80"
->>>>>>> Stashed changes
 
 -- Make "* talk to the real system clipboard (what Ctrl+V pastes) instead of
 -- Wayland's primary selection. 'clipboard' stays unset, so plain y/d/p only
